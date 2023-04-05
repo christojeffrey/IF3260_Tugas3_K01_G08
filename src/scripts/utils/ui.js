@@ -2,13 +2,11 @@ import { degToRad, radToDeg } from "../math/math.js";
 import { cs } from "../constant/cs.js";
 import { v3 } from "../math/v3.js";
 import { m4 } from "../math/m4.js";
-import { tessaract, rubic, pyramid } from "../models/model.js";
+import { tessaract } from "../models/index.js";
 
 //  update model list from here
 let modelListAsObject = {
-  rubic,
   tessaract,
-  pyramid,
 };
 let state;
 let defaultState;
