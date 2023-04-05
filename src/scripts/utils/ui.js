@@ -4,16 +4,25 @@ import { v3 } from "../math/v3.js";
 import { m4 } from "../math/m4.js";
 import { tessaract, rubic, pyramid } from "../models/model.js";
 
+//  update model list from here
+let modelListAsObject = {
+  rubic,
+  tessaract,
+  pyramid,
+};
 let state;
 let defaultState;
 
 function setupUI(gl) {
+  // this is the default object. take the first object in the list
+  let firstObjectKey = Object.keys(modelListAsObject)[0];
+
   let object = {
-    name: "rubic",
-    position: rubic.position,
-    color: rubic.color,
-    normal: rubic.normal,
-    center: rubic.center,
+    name: firstObjectKey,
+    position: modelListAsObject[firstObjectKey].position,
+    color: modelListAsObject[firstObjectKey].color,
+    normal: modelListAsObject[firstObjectKey].normal,
+    center: modelListAsObject[firstObjectKey].center,
   };
 
   let totalVertices = object.position.length / 3;
@@ -66,29 +75,57 @@ function setupUI(gl) {
 
   // Set canvas size
   resizeCanvasToDisplaySize(gl.canvas);
-
+  // setup ui
+  setupModelList();
   // Left bar listeners
-  setupModelListener(state);
-  setupAnimationListener(state);
-  setupFileListener(state, defaultState);
-  setupCanvasListener(state, defaultState);
-  setupShadingListener(state);
+  setupModelListener();
+  setupAnimationListener();
+  setupFileListener();
+  setupCanvasListener();
+  setupShadingListener();
   setupHelpListener();
 
   // Right bar listeners
-  setupProjectionListener(state);
-  setupProjectionMenuListener(state);
-  setupTranslateListener(state);
-  setupRotationListener(state);
-  setupScaleListener(state);
-  setupCameraListener(state);
+  setupProjectionListener();
+  setupProjectionMenuListener();
+  setupTranslateListener();
+  setupRotationListener();
+  setupScaleListener();
+  setupCameraListener();
 
   window.addEventListener("resize", resizeCanvasToDisplaySize(gl.canvas));
 
   return state;
 }
 
-function setupModelListener(state) {
+function setupModelList() {
+  // id:model-list
+  {
+    /* <div style="padding-left: 1.7rem">
+  <input type="radio" id="tessaract" name="model" value="tessaract" />
+  <label for="tessaract">Tessaract</label>
+</div> */
+  }
+  let modelListElmt = document.querySelector("#model-list");
+  let modelList = Object.keys(modelListAsObject);
+  modelList.forEach((model) => {
+    let divElmt = document.createElement("div");
+    divElmt.style = "padding-left: 1.7rem";
+    let inputElmt = document.createElement("input");
+    inputElmt.type = "radio";
+    inputElmt.id = model;
+    inputElmt.name = "model";
+    inputElmt.value = model;
+    inputElmt.checked = model === defaultState.object.name;
+    let labelElmt = document.createElement("label");
+    labelElmt.htmlFor = model;
+    labelElmt.innerText = model;
+    divElmt.appendChild(inputElmt);
+    divElmt.appendChild(labelElmt);
+    modelListElmt.appendChild(divElmt);
+  });
+}
+function setupModelListener() {
   let modelElmt = document.querySelectorAll("input[name=model]");
   modelElmt.forEach((elmt) => {
     elmt.addEventListener("change", (e) => {
@@ -98,36 +135,16 @@ function setupModelListener(state) {
 
   function updateModel(e) {
     let model = e.target.value;
-    switch (model) {
-      case "tessaract":
-        state.object.name = "tessaract";
-        state.object.position = tessaract.position;
-        state.object.color = tessaract.color;
-        state.object.normal = tessaract.normal;
-        state.object.center = tessaract.center;
-        state.totalVertices = state.object.position.length / 3;
-        break;
-      case "rubic":
-        state.object.name = "rubic";
-        state.object.position = rubic.position;
-        state.object.color = rubic.color;
-        state.object.normal = rubic.normal;
-        state.object.center = rubic.center;
-        state.totalVertices = state.object.position.length / 3;
-        break;
-      case "pyramid":
-        state.object.name = "pyramid";
-        state.object.position = pyramid.position;
-        state.object.color = pyramid.color;
-        state.object.normal = pyramid.normal;
-        state.object.center = pyramid.center;
-        state.totalVertices = state.object.position.length / 3;
-        break;
-    }
+    state.object.name = model;
+    state.object.position = modelListAsObject[model].position;
+    state.object.color = modelListAsObject[model].color;
+    state.object.normal = modelListAsObject[model].normal;
+    state.object.center = modelListAsObject[model].center;
+    state.totalVertices = state.object.position.length / 3;
   }
 }
 
-function setupFileListener(state, defaultState) {
+function setupFileListener() {
   let importElmt = document.querySelector("#import");
   importElmt.addEventListener("input", importData);
 
@@ -209,7 +226,7 @@ function setupFileListener(state, defaultState) {
   }
 }
 
-function setupCanvasListener(state, defaultState) {
+function setupCanvasListener() {
   let clearElmt = document.querySelector("#clear");
   clearElmt.addEventListener("click", clearCanvas);
 
@@ -365,7 +382,7 @@ function resetCanvas() {
   shadingElmt.checked = state.shading;
 }
 
-function setupAnimationListener(state) {
+function setupAnimationListener() {
   let animationELmt = document.querySelector("#animate");
   animationELmt.addEventListener("change", (e) => {
     updateAnimation(e);
@@ -376,7 +393,7 @@ function setupAnimationListener(state) {
   }
 }
 
-function setupShadingListener(state) {
+function setupShadingListener() {
   let shadingElmt = document.querySelector("#shading");
   shadingElmt.addEventListener("change", (e) => {
     updateShading(e);
@@ -406,7 +423,7 @@ function resizeCanvasToDisplaySize(canvas, multiplier) {
   cs.set(width, height, 2000);
 }
 
-function setupProjectionListener(state) {
+function setupProjectionListener() {
   let projectionElmt = document.querySelectorAll("input[name=projection]");
   projectionElmt.forEach((elmt) => {
     elmt.addEventListener("change", (e) => {
@@ -447,7 +464,7 @@ function setupProjectionListener(state) {
   }
 }
 
-function setupProjectionMenuListener(state) {
+function setupProjectionMenuListener() {
   let obliqueAngleElmt = document.querySelector("#obliqueAngle");
   obliqueAngleElmt.addEventListener("input", (e) => {
     updateObliqueAngle(e);
@@ -473,7 +490,7 @@ function setupProjectionMenuListener(state) {
   }
 }
 
-function setupTranslateListener(state) {
+function setupTranslateListener() {
   // set listeners for translateX sliders
   let translateXElmt = document.querySelector("#translateX");
   translateXElmt.min = -(Math.round(cs.width / 1000) * 1000) / 4;
@@ -525,7 +542,7 @@ function setupTranslateListener(state) {
   }
 }
 
-function setupRotationListener(state) {
+function setupRotationListener() {
   // set listeners for rotateX sliders
   let rotateXELmt = document.querySelector("#rotateX");
   rotateXELmt.addEventListener("input", (e) => {
@@ -568,7 +585,7 @@ function setupRotationListener(state) {
   }
 }
 
-function setupScaleListener(state) {
+function setupScaleListener() {
   // set listeners for scaleX sliders
   let scaleXElmt = document.querySelector("#scaleX");
   scaleXElmt.addEventListener("input", (e) => {
@@ -611,7 +628,7 @@ function setupScaleListener(state) {
   }
 }
 
-function setupCameraListener(state) {
+function setupCameraListener() {
   let radiusElmt = document.querySelector("#radius");
   radiusElmt.addEventListener("input", (e) => {
     updateRadius(e, { value: e.target.value });
