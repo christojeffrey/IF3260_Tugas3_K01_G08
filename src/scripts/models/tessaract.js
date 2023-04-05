@@ -1,6 +1,6 @@
 import { Point } from "./classes/point.js";
 import { Rectangle } from "./classes/rectangle.js";
-import { Model } from "./model.js";
+import { Model } from "./classes/model.js";
 
 let tessaract = new Model();
 

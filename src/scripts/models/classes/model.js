@@ -1,7 +1,6 @@
-import { primaryColors } from "../constant/colors.js";
-import { v3 } from "../math/v3.js";
+import { primaryColors } from "../../constant/colors.js";
+import { v3 } from "../../math/v3.js";
 
-let rectangles;
 let minX, maxX, minY, maxY, minZ, maxZ;
 
 export class Model {
@@ -11,6 +10,10 @@ export class Model {
     this.color = [];
     this.normal = [];
     this.center = [];
+    // TODO: add object anchor. let's make it a coordinate relative to the object's center location
+    // TODO: add children, which is an object of Models with the name of the object as key
+    // TODO: add keyframes. which is an array of Keyframe. Keyframe is an object that has the transformation argument.
+    // TODO: adapt to Cube class.
   }
 
   completeModelUsingRectangles() {

@@ -1,0 +1,14 @@
+yang udah ada:
+projection: orthographic, oblique, perspective
+global object manipulation: rotasi , translate, scaling
+camera manipulation: radius, angle
+shading: enable and disable shading
+load and save object
+
+yg belom (ntah belom samsek, atau perubahan spek dibandingin yg lama):
+bikin object 
+change texture: bump, reflective, custom(gambar)
+animation
+component control
+
+trus bonus2. 
