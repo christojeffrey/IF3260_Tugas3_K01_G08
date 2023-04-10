@@ -5,35 +5,42 @@ let minX, maxX, minY, maxY, minZ, maxZ;
 
 export class Model {
   constructor() {
-    this.rectangles = [];
+    this.cubes = [];
+    this.center = [];
+    // private
     this.position = [];
     this.color = [];
     this.normal = [];
-    this.center = [];
     // TODO: add object anchor. let's make it a coordinate relative to the object's center location
     // TODO: add children, which is an object of Models with the name of the object as key
     // TODO: add keyframes. which is an array of Keyframe. Keyframe is an object that has the transformation argument.
     // TODO: adapt to Cube class.
   }
 
-  completeModelUsingRectangles() {
+  setCubes(cubes) {
+    this.cubes = cubes;
+  }
+
+  completeModelUsingCubes() {
     // you only need to setup the rectangles.
     // the rest will be done automatically.
     // note that the color is aplied 'randomly' based on primary color
 
     // set normal, color, position
-    for (let i = 0; i < this.rectangles.length; i++) {
-      let rectangle = this.rectangles[i].flattenToTriangles();
-      for (let j = 0; j < rectangle.length; j += 3 * 3) {
-        let vec1 = v3.create(rectangle[j + 3] - rectangle[j], rectangle[j + 4] - rectangle[j + 1], rectangle[j + 5] - rectangle[j + 2]);
-        let vec2 = v3.create(rectangle[j + 6] - rectangle[j + 3], rectangle[j + 7] - rectangle[j + 4], rectangle[j + 8] - rectangle[j + 5]);
-        let normal = v3.normalize(v3.cross(vec2, vec1));
-        this.normal = [...this.normal, ...normal, ...normal, ...normal];
+    for (let i = 0; i < this.cubes.length; i++) {
+      for (let j = 0; j < this.cubes[i].rectangles.length; j++) {
+        let positions = this.cubes[i].rectangles[j].flattenToPoints();
+        for (let k = 0; k < positions.length; k += 3 * 3) {
+          let vec1 = v3.create(positions[k + 3] - positions[k], positions[k + 4] - positions[k + 1], positions[k + 5] - positions[k + 2]);
+          let vec2 = v3.create(positions[k + 6] - positions[k + 3], positions[k + 7] - positions[k + 4], positions[k + 8] - positions[k + 5]);
+          let normal = v3.normalize(v3.cross(vec2, vec1));
+          this.normal = [...this.normal, ...normal, ...normal, ...normal];
+        }
+        for (let k = 0; k < 6; k++) {
+          this.color = [...this.color, ...primaryColors[i % 6]];
+        }
+        this.position = [...this.position, ...positions];
       }
-      for (let j = 0; j < 6; j++) {
-        this.color = [...this.color, ...primaryColors[i % 6]];
-      }
-      this.position = [...this.position, ...rectangle];
     }
 
     // set center
