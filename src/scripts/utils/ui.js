@@ -20,7 +20,7 @@ function setupUI(gl) {
     position: modelListAsObject[firstObjectKey].position,
     color: modelListAsObject[firstObjectKey].color,
     normal: modelListAsObject[firstObjectKey].normal,
-    center: modelListAsObject[firstObjectKey].center,
+    center: modelListAsObject[firstObjectKey].anchor,
   };
 
   let totalVertices = object.position.length / 3;

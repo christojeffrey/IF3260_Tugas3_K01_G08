@@ -1,12 +1,12 @@
 import { primaryColors } from "../../constant/colors.js";
 import { v3 } from "../../math/v3.js";
+import { Point } from "./point.js";
 
 let minX, maxX, minY, maxY, minZ, maxZ;
 
 export class Model {
   constructor() {
     this.cubes = [];
-    this.center = [];
     // private
     this.position = [];
     this.color = [];
@@ -53,18 +53,10 @@ export class Model {
       }
     }
 
-    // set center
-    minX = Math.min(...this.position.filter((_, i) => i % 3 === 0));
-    maxX = Math.max(...this.position.filter((_, i) => i % 3 === 0));
-    minY = Math.min(...this.position.filter((_, i) => i % 3 === 1));
-    maxY = Math.max(...this.position.filter((_, i) => i % 3 === 1));
-    minZ = Math.min(...this.position.filter((_, i) => i % 3 === 2));
-    maxZ = Math.max(...this.position.filter((_, i) => i % 3 === 2));
-
-    this.center = [(minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2];
+    this.setCenterAsAnchor();
   }
 
-  setAnchorAsCenter() {
+  setCenterAsAnchor() {
     // set center
     minX = Math.min(...this.position.filter((_, i) => i % 3 === 0));
     maxX = Math.max(...this.position.filter((_, i) => i % 3 === 0));
@@ -73,6 +65,6 @@ export class Model {
     minZ = Math.min(...this.position.filter((_, i) => i % 3 === 2));
     maxZ = Math.max(...this.position.filter((_, i) => i % 3 === 2));
 
-    this.center = [(minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2];
+    this.anchor = [(minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2];
   }
 }

@@ -15,6 +15,7 @@ let elbow = new Model();
 // elbow.setChildren([firstArm, secondArm]);
 elbow.setCubes([new Cube(100, 50, 200, new Point(0, 0, 0)), new Cube(100, 200, 50, new Point(0, 125, 125))]);
 elbow.completeModelUsingCubes();
+elbow.setAnchor([0, 0, 100]);
 // elbow.addChildren("firstArm", firstArm);
 
 export { elbow };
