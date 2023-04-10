@@ -37,7 +37,7 @@ export class Model {
           this.normal = [...this.normal, ...normal, ...normal, ...normal];
         }
         for (let k = 0; k < 6; k++) {
-          this.color = [...this.color, ...primaryColors[i % 6]];
+          this.color = [...this.color, ...primaryColors[j % primaryColors.length]];
         }
         this.position = [...this.position, ...positions];
       }
