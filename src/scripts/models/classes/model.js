@@ -11,10 +11,20 @@ export class Model {
     this.position = [];
     this.color = [];
     this.normal = [];
-    // TODO: add object anchor. let's make it a coordinate relative to the object's center location
-    // TODO: add children, which is an object of Models with the name of the object as key
+
+    // object anchor. let's make it a coordinate relative to the object's center location
+    this.anchor = new Point(0, 0, 0);
+    // children, which is an object of Models with the name of the object as key
+    this.children = {};
     // TODO: add keyframes. which is an array of Keyframe. Keyframe is an object that has the transformation argument.
     // TODO: adapt to Cube class.
+  }
+  addChildren(name, model) {
+    this.children[name] = model;
+  }
+
+  setAnchor(anchor) {
+    this.anchor = anchor;
   }
 
   setCubes(cubes) {
@@ -43,6 +53,18 @@ export class Model {
       }
     }
 
+    // set center
+    minX = Math.min(...this.position.filter((_, i) => i % 3 === 0));
+    maxX = Math.max(...this.position.filter((_, i) => i % 3 === 0));
+    minY = Math.min(...this.position.filter((_, i) => i % 3 === 1));
+    maxY = Math.max(...this.position.filter((_, i) => i % 3 === 1));
+    minZ = Math.min(...this.position.filter((_, i) => i % 3 === 2));
+    maxZ = Math.max(...this.position.filter((_, i) => i % 3 === 2));
+
+    this.center = [(minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2];
+  }
+
+  setAnchorAsCenter() {
     // set center
     minX = Math.min(...this.position.filter((_, i) => i % 3 === 0));
     maxX = Math.max(...this.position.filter((_, i) => i % 3 === 0));
