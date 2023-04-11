@@ -16,15 +16,8 @@ function setupUI(gl) {
   let firstObjectKey = Object.keys(modelListAsObject)[0];
   let modelBeingDrawn = modelListAsObject[firstObjectKey];
 
-  let modelInFocus = {
-    name: firstObjectKey,
-    position: modelListAsObject[firstObjectKey].position,
-    color: modelListAsObject[firstObjectKey].color,
-    normal: modelListAsObject[firstObjectKey].normal,
-    anchor: modelListAsObject[firstObjectKey].anchor,
-  };
+  let modelInFocus = modelBeingDrawn.children.firstArm;
 
-  let totalVertices = modelInFocus.position.length / 3;
   let projection = "orthographic";
   let obliqueAngle = 45;
   let perspectiveFoV = 60;
@@ -38,7 +31,6 @@ function setupUI(gl) {
   defaultState = {
     modelBeingDrawn,
     modelInFocus,
-    totalVertices,
     projection,
     obliqueAngle,
     perspectiveFoV,
@@ -64,6 +56,9 @@ function setupUI(gl) {
   setupCanvasListener();
   setupShadingListener();
   setupHelpListener();
+  setModelsChildrenList();
+
+  inFocusManipulationListener();
 
   // Right bar listeners
   setupProjectionListener();
@@ -109,6 +104,17 @@ function setupModelList() {
 function setModelsChildrenList() {
   // #models-children
   let modelsChildrenElmt = document.querySelector("#models-children");
+  // add model's name
+  let modelElmt = document.createElement("div");
+  modelElmt.innerText = state.modelBeingDrawn.name;
+  modelsChildrenElmt.appendChild(modelElmt);
+  // add children's name recursively
+  let children = Object.keys(state.modelBeingDrawn.children);
+  children.forEach((child) => {
+    let childElmt = document.createElement("div");
+    childElmt.innerText = child;
+    modelsChildrenElmt.appendChild(childElmt);
+  });
 }
 function setupModelListener() {
   let modelElmt = document.querySelectorAll("input[name=model]");
@@ -269,6 +275,7 @@ function setupCanvasListener() {
     state.totalVertices = 0;
   }
 }
+
 function resetCanvas() {
   state.modelInFocus = {
     name: defaultState.modelInFocus.name,
@@ -611,6 +618,25 @@ function setupScaleListener() {
           break;
       }
     };
+  }
+}
+
+function inFocusManipulationListener() {
+  // #in-focus-manipulation
+  let idNameInput = ["translateXInFocusInput", "translateYInFocusInput", "translateZInFocusInput"];
+  let idNameLabel = ["translateXInFocusValue", "translateYInFocusValue", "translateZInFocusValue"];
+  for (let i = 0; i < 3; i++) {
+    let elmtInput = document.querySelector("#" + idNameInput[i]);
+    elmtInput.min = -(Math.round(cs.width / 1000) * 1000) / 4;
+    elmtInput.max = (Math.round(cs.width / 1000) * 1000) / 4;
+    elmtInput.addEventListener("input", (e) => {
+      // parse the value to float
+      state.modelInFocus.translation[i] = parseFloat(e.target.value);
+      let elmtValue = document.querySelector("#" + idNameLabel[i]);
+      elmtValue.textContent = e.target.value;
+      elmtInput.value = e.target.value;
+      state.modelBeingDrawn.updateModelBeingDrawnFully();
+    });
   }
 }
 

@@ -61,10 +61,58 @@
           <button id="help" class="button" style="margin-top: 4vh">Help</button>
         </div>
         <!-- model's children -->
-        <div id="models-children">
-          <div style="padding-left: 1.7rem">
-            <input type="radio" id="tessaract" name="model" value="tessaract" />
-            <label for="tessaract">Tessaract</label>
+        <div id="models-children"></div>
+        <!-- in focus manipulation -->
+        <div id="in-focus-manipulation">
+          <h3 id="title">Translate</h3>
+          <div style="padding-left: 2.2rem">
+            <label>X</label>
+            <input type="range" id="translateXInFocusInput" min="-100" max="100" value="0" />
+            <label id="translateXInFocusValue">0</label>
+          </div>
+          <div style="padding-left: 2.2rem">
+            <label>Y</label>
+            <input type="range" id="translateYInFocusInput" min="-100" max="100" value="0" />
+            <label id="translateYInFocusValue">0</label>
+          </div>
+          <div style="padding-left: 2.2rem">
+            <label>Z</label>
+            <input type="range" id="translateZInFocusInput" min="-100" max="100" value="0" />
+            <label id="translateZInFocusValue">0</label>
+          </div>
+          <!-- in focus rotate Selector -->
+          <h3 id="title">Rotate</h3>
+          <div style="padding-left: 2.2rem">
+            <label>X</label>
+            <input type="range" id="rotateXInFocus" min="0" max="360" value="0" />
+            <label id="rotateXInFocusValue">0</label>
+          </div>
+          <div style="padding-left: 2.2rem">
+            <label>Y</label>
+            <input type="range" id="rotateYInFocus" min="0" max="360" value="0" />
+            <label id="rotateYInFocusValue">0</label>
+          </div>
+          <div style="padding-left: 2.2rem">
+            <label>Z</label>
+            <input type="range" id="rotateZInFocus" min="0" max="360" value="0" />
+            <label id="rotateZInFocusValue">0</label>
+          </div>
+          <!-- in focus scale Selector -->
+          <h3 id="title">Scale</h3>
+          <div style="padding-left: 2.2rem">
+            <label>X</label>
+            <input type="range" id="scaleXInFocus" min="0" max="3" value="1" step="0.1" />
+            <label id="scaleXInFocusValue">1</label>
+          </div>
+          <div style="padding-left: 2.2rem">
+            <label>Y</label>
+            <input type="range" id="scaleYInFocus" min="0" max="3" value="1" step="0.1" />
+            <label id="scaleYInFocusValue">1</label>
+          </div>
+          <div>
+            <label style="padding-left: 2.2rem">Z</label>
+            <input type="range" id="scaleZInFocus" min="0" max="3" value="1" step="0.1" />
+            <label id="scaleZInFocusValue">1</label>
           </div>
         </div>
       </div>

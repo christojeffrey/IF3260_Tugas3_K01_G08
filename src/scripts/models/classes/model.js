@@ -5,24 +5,31 @@ import { Point } from "./point.js";
 let minX, maxX, minY, maxY, minZ, maxZ;
 
 export class Model {
-  constructor() {
+  constructor(name) {
+    // PUBLIC
     this.cubes = [];
-    // private
-    this.position = [];
-    this.color = [];
-    this.normal = [];
-
-    // object anchor. let's make it a coordinate relative to the object's center location
-    this.anchor = new Point(0, 0, 0);
+    this.name = name;
     // children, which is an object of Models with the name of the object as key
     this.children = {};
+    // object anchor. let's make it a coordinate relative to the object's center location
+    this.anchor = new Point(0, 0, 0);
+
+    // private
+    this.color = [];
+    this.position = [];
+    this.normal = [];
+
     // TODO: add keyframes. which is an array of Keyframe. Keyframe is an object that has the transformation argument.
     // TODO: adapt to Cube class.
+
+    // modelManipulation
+    this.translation = [0, 0, 0];
+    this.rotation = [0, 0, 0];
+    this.scale = [1, 1, 1];
   }
   addChildren(name, model) {
     this.children[name] = model;
   }
-
   setAnchor(anchor) {
     this.anchor = anchor;
   }
@@ -32,10 +39,13 @@ export class Model {
   }
 
   completeModelUsingCubes() {
+    // not for children
     // you only need to setup the rectangles.
     // the rest will be done automatically.
     // note that the color is aplied 'randomly' based on primary color
-
+    this.position = [];
+    this.color = [];
+    this.normal = [];
     // set normal, color, position
     for (let i = 0; i < this.cubes.length; i++) {
       for (let j = 0; j < this.cubes[i].rectangles.length; j++) {
@@ -53,7 +63,7 @@ export class Model {
       }
     }
 
-    this.setCenterAsAnchor();
+    // this.setCenterAsAnchor();
   }
 
   setCenterAsAnchor() {
@@ -66,5 +76,52 @@ export class Model {
     maxZ = Math.max(...this.position.filter((_, i) => i % 3 === 2));
 
     this.anchor = [(minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2];
+  }
+
+  updateModelBeingDrawnFully() {
+    // update position based on translation, rotation, scale and anchor
+    // do this recursively for all children
+    this.completeModelUsingCubes();
+    console.log("name of this model", this.name);
+    console.log(this.position);
+
+    let childrenKeys = Object.keys(this.children);
+    childrenKeys.forEach((key) => {
+      console.log(key);
+      this.children[key].updateModelBeingDrawnFully();
+      console.log("this.children[childrenKeys[key]].position");
+      console.log(this.children[key].position);
+      this.position = [...this.position, ...this.children[key].position];
+      this.color = [...this.color, ...this.children[key].color];
+      this.normal = [...this.normal, ...this.children[key].normal];
+    });
+    console.log("done");
+    console.log("====================================");
+    console.log("this.position after");
+    console.log(this.position);
+
+    // // update position based on translation, rotation, scale and anchor
+    let newPositions = [];
+    // group position by 3, then manipulate it
+    for (let i = 0; i < this.position.length; i += 3) {
+      // console.log(this.position[i], this.position[i + 1], this.position[i + 2]);
+      let temporaryPoint = new Point(this.position[i], this.position[i + 1], this.position[i + 2]);
+      // translate
+      console.log("temporaryPoint");
+      console.log(temporaryPoint.flatten());
+      temporaryPoint.translate(this.translation);
+
+      // rotate
+      temporaryPoint.rotate(this.rotation, this.anchor);
+
+      // scale
+      temporaryPoint.scale(this.scale, this.anchor);
+
+      newPositions = [...newPositions, ...temporaryPoint.flatten()];
+    }
+
+    console.log("newPositions");
+    console.log(newPositions);
+    this.position = newPositions;
   }
 }
