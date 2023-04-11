@@ -14,16 +14,17 @@ let defaultState;
 function setupUI(gl) {
   // this is the default object. take the first object in the list
   let firstObjectKey = Object.keys(modelListAsObject)[0];
+  let modelBeingDrawn = modelListAsObject[firstObjectKey];
 
-  let object = {
+  let modelInFocus = {
     name: firstObjectKey,
     position: modelListAsObject[firstObjectKey].position,
     color: modelListAsObject[firstObjectKey].color,
     normal: modelListAsObject[firstObjectKey].normal,
-    center: modelListAsObject[firstObjectKey].anchor,
+    anchor: modelListAsObject[firstObjectKey].anchor,
   };
 
-  let totalVertices = object.position.length / 3;
+  let totalVertices = modelInFocus.position.length / 3;
   let projection = "orthographic";
   let obliqueAngle = 45;
   let perspectiveFoV = 60;
@@ -35,7 +36,8 @@ function setupUI(gl) {
   let animate = false;
 
   defaultState = {
-    object,
+    modelBeingDrawn,
+    modelInFocus,
     totalVertices,
     projection,
     obliqueAngle,
@@ -48,28 +50,8 @@ function setupUI(gl) {
     animate,
   };
 
-  state = {
-    object: {
-      name: defaultState.object.name,
-      position: defaultState.object.position,
-      color: defaultState.object.color,
-      normal: defaultState.object.normal,
-      center: defaultState.object.center,
-    },
-    totalVertices: defaultState.totalVertices,
-    projection: defaultState.projection,
-    obliqueAngle: defaultState.obliqueAngle,
-    perspectiveFoV: defaultState.perspectiveFoV,
-    rotation: [...defaultState.rotation],
-    translation: [...defaultState.translation],
-    scale: [...defaultState.scale],
-    camera: {
-      radius: defaultState.camera.radius,
-      angle: defaultState.camera.angle,
-    },
-    shading: defaultState.shading,
-    animate: defaultState.animate,
-  };
+  // set state as the default state
+  state = defaultState;
 
   // Set canvas size
   resizeCanvasToDisplaySize(gl.canvas);
@@ -114,7 +96,7 @@ function setupModelList() {
     inputElmt.id = model;
     inputElmt.name = "model";
     inputElmt.value = model;
-    inputElmt.checked = model === defaultState.object.name;
+    inputElmt.checked = model === defaultState.modelInFocus.name;
     let labelElmt = document.createElement("label");
     labelElmt.htmlFor = model;
     labelElmt.innerText = model;
@@ -122,6 +104,11 @@ function setupModelList() {
     divElmt.appendChild(labelElmt);
     modelListElmt.appendChild(divElmt);
   });
+}
+
+function setModelsChildrenList() {
+  // #models-children
+  let modelsChildrenElmt = document.querySelector("#models-children");
 }
 function setupModelListener() {
   let modelElmt = document.querySelectorAll("input[name=model]");
@@ -133,12 +120,12 @@ function setupModelListener() {
 
   function updateModel(e) {
     let model = e.target.value;
-    state.object.name = model;
-    state.object.position = modelListAsObject[model].position;
-    state.object.color = modelListAsObject[model].color;
-    state.object.normal = modelListAsObject[model].normal;
-    state.object.center = modelListAsObject[model].center;
-    state.totalVertices = state.object.position.length / 3;
+    state.modelInFocus.name = model;
+    state.modelInFocus.position = modelListAsObject[model].position;
+    state.modelInFocus.color = modelListAsObject[model].color;
+    state.modelInFocus.normal = modelListAsObject[model].normal;
+    state.modelInFocus.anchor = modelListAsObject[model].anchor;
+    state.totalVertices = state.modelInFocus.position.length / 3;
   }
 }
 
@@ -160,18 +147,18 @@ function setupFileListener() {
       let modelElmt = document.querySelector(`input[value=${data.name}]`);
       modelElmt.checked = true;
       // Pass data to defaultState
-      defaultState.object.name = data.name;
-      defaultState.object.position = data.position;
-      defaultState.object.color = data.color;
+      defaultState.modelInFocus.name = data.name;
+      defaultState.modelInFocus.position = data.position;
+      defaultState.modelInFocus.color = data.color;
 
-      defaultState.object.normal = [];
+      defaultState.modelInFocus.normal = [];
 
       for (let i = 0; i < data.position.length; i += 9) {
         let vec1 = v3.create(data.position[i + 3] - data.position[i], data.position[i + 4] - data.position[i + 1], data.position[i + 5] - data.position[i + 2]);
         let vec2 = v3.create(data.position[i + 6] - data.position[i], data.position[i + 7] - data.position[i + 1], data.position[i + 8] - data.position[i + 2]);
         let normal = v3.cross(vec2, vec1);
         v3.normalize(normal, normal);
-        defaultState.object.normal = [...defaultState.object.normal, ...normal, ...normal, ...normal];
+        defaultState.modelInFocus.normal = [...defaultState.modelInFocus.normal, ...normal, ...normal, ...normal];
       }
 
       let maxX = Math.max(...data.position.filter((_, i) => i % 3 === 0));
@@ -180,16 +167,17 @@ function setupFileListener() {
       let minY = Math.min(...data.position.filter((_, i) => i % 3 === 1));
       let maxZ = Math.max(...data.position.filter((_, i) => i % 3 === 2));
       let minZ = Math.min(...data.position.filter((_, i) => i % 3 === 2));
-      defaultState.object.center = [(maxX + minX) / 2, data.name === "pyramid" ? (maxY + minY) / 2 : (maxY + minY) / 2, (maxZ + minZ) / 2];
+      defaultState.modelInFocus.anchor = [(maxX + minX) / 2, data.name === "pyramid" ? (maxY + minY) / 2 : (maxY + minY) / 2, (maxZ + minZ) / 2];
 
-      defaultState.totalVertices = defaultState.object.position.length / 3;
+      defaultState.totalVertices = defaultState.modelInFocus.position.length / 3;
 
+      // set the imported file as the default state
       // Pass defaultState to state
-      state.object.name = defaultState.object.name;
-      state.object.position = defaultState.object.position;
-      state.object.color = defaultState.object.color;
-      state.object.normal = defaultState.object.normal;
-      state.object.center = defaultState.object.center;
+      state.modelInFocus.name = defaultState.modelInFocus.name;
+      state.modelInFocus.position = defaultState.modelInFocus.position;
+      state.modelInFocus.color = defaultState.modelInFocus.color;
+      state.modelInFocus.normal = defaultState.modelInFocus.normal;
+      state.modelInFocus.anchor = defaultState.modelInFocus.anchor;
       state.totalVertices = defaultState.totalVertices;
     };
     reader.readAsText(file);
@@ -201,17 +189,17 @@ function setupFileListener() {
   function exportData() {
     // Transform position
     let transformedPosition = [];
-    for (let i = 0; i < state.object.position.length; i += 3) {
-      let vec = v3.create(state.object.position[i], state.object.position[i + 1], state.object.position[i + 2]);
-      let transformedVec = m4.multiplyWithV3(m4.transform(state.translation, state.rotation, state.scale, state.object.center), vec);
+    for (let i = 0; i < state.modelInFocus.position.length; i += 3) {
+      let vec = v3.create(state.modelInFocus.position[i], state.modelInFocus.position[i + 1], state.modelInFocus.position[i + 2]);
+      let transformedVec = m4.multiplyWithV3(m4.transform(state.translation, state.rotation, state.scale, state.modelInFocus.anchor), vec);
       transformedVec = transformedVec.slice(0, 3);
       transformedPosition = [...transformedPosition, Math.round(transformedVec[0]), Math.round(transformedVec[1]), Math.round(transformedVec[2])];
     }
 
     let data = {
-      name: state.object.name,
+      name: state.modelInFocus.name,
       position: transformedPosition,
-      color: state.object.color,
+      color: state.modelInFocus.color,
     };
     let json = JSON.stringify(data);
     let blob = new Blob([json], { type: "application/json" });
@@ -273,21 +261,21 @@ function setupCanvasListener() {
   });
 
   function clearCanvas() {
-    state.object.name = "none";
-    state.object.position = [];
-    state.object.color = [];
-    state.object.normal = [];
-    state.object.center = [];
+    state.modelInFocus.name = "none";
+    state.modelInFocus.position = [];
+    state.modelInFocus.color = [];
+    state.modelInFocus.normal = [];
+    state.modelInFocus.anchor = [];
     state.totalVertices = 0;
   }
 }
 function resetCanvas() {
-  state.object = {
-    name: defaultState.object.name,
-    position: defaultState.object.position,
-    color: defaultState.object.color,
-    normal: defaultState.object.normal,
-    center: defaultState.object.center,
+  state.modelInFocus = {
+    name: defaultState.modelInFocus.name,
+    position: defaultState.modelInFocus.position,
+    color: defaultState.modelInFocus.color,
+    normal: defaultState.modelInFocus.normal,
+    anchor: defaultState.modelInFocus.anchor,
   };
   state.totalVertices = defaultState.totalVertices;
   state.projection = defaultState.projection;
@@ -305,7 +293,7 @@ function resetCanvas() {
 
   let modelElmt = document.querySelectorAll("input[name=model]");
   for (let i = 0; i < modelElmt.length; i++) {
-    if (modelElmt[i].value == state.object.name) {
+    if (modelElmt[i].value == state.modelInFocus.name) {
       modelElmt[i].checked = true;
       break;
     }

@@ -9,7 +9,7 @@ function renderScene(gl, program, state) {
     if (state.animate) {
       animate(state);
     }
-    let { position, color, normal } = state.object;
+    let { position, color, normal } = state.modelInFocus;
     let buffers = initBuffers(gl, position, color, normal);
     drawScene(gl, program, buffers, state);
     requestAnimationFrame(render);
@@ -20,7 +20,7 @@ function renderScene(gl, program, state) {
 function drawScene(gl, program, buffers, state) {
   // Clear the canvas.
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  const { scale, rotation, translation, camera, object } = state;
+  const { scale, rotation, translation, camera, modelInFocus } = state;
   const { positionBuffer, colorBuffer, normalBuffer } = buffers;
   // look up where the vertex data needs to go.
   var positionLocation = gl.getAttribLocation(program, "a_position");
@@ -89,7 +89,7 @@ function drawScene(gl, program, buffers, state) {
 
   // Compute the matrices
   let projectionMatrix = m4.projection(camera.radius, state.obliqueAngle, state.perspectiveFoV, state.projection);
-  let transformMatrix = m4.transform(translation, rotation, scale, object.center);
+  let transformMatrix = m4.transform(translation, rotation, scale, modelInFocus.anchor);
 
   let cameraView = m4.view(camera.angle, camera.radius);
 
