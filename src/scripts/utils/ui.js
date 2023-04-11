@@ -622,7 +622,7 @@ function setupScaleListener() {
 }
 
 function inFocusManipulationListener() {
-  // #in-focus-manipulation
+  // translate
   let idNameInput = ["translateXInFocusInput", "translateYInFocusInput", "translateZInFocusInput"];
   let idNameLabel = ["translateXInFocusValue", "translateYInFocusValue", "translateZInFocusValue"];
   for (let i = 0; i < 3; i++) {
@@ -638,6 +638,8 @@ function inFocusManipulationListener() {
       state.modelBeingDrawn.updateModelBeingDrawnFully();
     });
   }
+  // TODO: rotation
+  // TODO: scale
 }
 
 function setupCameraListener() {
