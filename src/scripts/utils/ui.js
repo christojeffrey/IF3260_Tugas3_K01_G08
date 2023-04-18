@@ -107,6 +107,7 @@ function setModelsChildrenList() {
   let modelsChildrenElmt = document.querySelector("#models-children");
   // add model's name
   let modelElmt = document.createElement("div");
+  modelElmt.id = "model-in-focus";
   modelElmt.innerText = state.modelBeingDrawn.name;
   modelsChildrenElmt.appendChild(modelElmt);
 
@@ -114,22 +115,30 @@ function setModelsChildrenList() {
   let childrenObject = state.modelBeingDrawn.children;
   let childrenList = Object.keys(childrenObject);
   childrenList.forEach((child) => {
-    addChildrenButtonRecursively(childrenObject[child], modelsChildrenElmt);
+    addChildrenButtonRecursively(0, childrenObject[child], modelsChildrenElmt);
   });
 }
 // add children's name recursively as a button that can be clicked. on click, change modelInFocus
-function addChildrenButtonRecursively(child, modelsChildrenElmt) {
-  let childElmt = document.createElement("button");
-  childElmt.innerText = child.name;
-  childElmt.addEventListener("click", (e) => {
+function addChildrenButtonRecursively(leftMargin, child, modelsChildrenElmt) {
+  // wrap button in a div
+  let childElmt = document.createElement("div");
+  childElmt.style = `padding-left: ${leftMargin}rem`;
+  // button
+  let buttonElmt = document.createElement("button");
+  buttonElmt.innerText = child.name;
+  buttonElmt.addEventListener("click", (e) => {
+    // change id model-in-focus
+    let modelElmt = document.querySelector("#model-in-focus");
+    modelElmt.innerText = child.name;
     state.modelInFocus = child;
   });
+  childElmt.appendChild(buttonElmt);
   modelsChildrenElmt.appendChild(childElmt);
 
   let childrenObject = child.children;
   let childrenList = Object.keys(childrenObject);
   childrenList.forEach((child) => {
-    addChildrenButtonRecursively(childrenObject[child], modelsChildrenElmt);
+    addChildrenButtonRecursively(leftMargin + 1.7, childrenObject[child], modelsChildrenElmt);
   });
 }
 
