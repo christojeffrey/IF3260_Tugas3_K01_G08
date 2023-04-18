@@ -112,7 +112,22 @@
           </div>
         </div>
       </div>
+      <!-- middle part -->
       <canvas id="canvas"></canvas>
+      <div id="animation-container">
+        <div id="animation-bar">
+          <!-- current frame count field-->
+          <div id="frame-container">
+            <input type="number" id="current-frame-count" value="1" min="1" max="10" />
+            <!-- max frame count text-->
+            <p id="max-frame-count">/10</p>
+          </div>
+          <!-- play button -->
+          <button id="play-animation" class="button">Play</button>
+          <!-- reset button -->
+          <button id="reset-animation" class="button">Reset</button>
+        </div>
+      </div>
       <div id="right-bar">
         <!-- Projection Selector -->
         <h3 id="title">Projection</h3>

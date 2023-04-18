@@ -20,7 +20,6 @@ export class Model {
     this.normal = [];
 
     // TODO: add keyframes. which is an array of Keyframe. Keyframe is an object that has the transformation argument.
-    // TODO: adapt to Cube class.
 
     // modelManipulation
     this.translation = [0, 0, 0];

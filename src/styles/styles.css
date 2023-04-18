@@ -135,3 +135,21 @@ body {
   /* border 2 black */
   border: 2px solid black;
 }
+
+#animation-container {
+  /* fix bottom middle, width 1/4 screen */
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+#animation-bar {
+  border: 2px solid black;
+}
+
+#frame-container {
+  display: flex;
+  /* center */
+  justify-content: center;
+}
