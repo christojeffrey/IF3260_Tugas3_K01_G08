@@ -7,7 +7,7 @@ import { elbow, pig } from "../models/index.js";
 //  update model list from here
 let modelListAsObject = {
   elbow,
-  pig
+  pig,
 };
 let state;
 let defaultState;
@@ -16,7 +16,7 @@ function setupUI(gl) {
   // this is the default object. take the first object in the list
   let firstObjectKey = Object.keys(modelListAsObject)[1];
   let modelBeingDrawn = modelListAsObject[firstObjectKey];
-  
+
   let modelInFocus = modelBeingDrawn.children.head;
 
   let projection = "orthographic";
@@ -57,8 +57,8 @@ function setupUI(gl) {
   setupCanvasListener();
   setupShadingListener();
   setupHelpListener();
-  setModelsChildrenList();
 
+  setModelsChildrenList();
   inFocusManipulationListener();
 
   // Right bar listeners
@@ -109,14 +109,30 @@ function setModelsChildrenList() {
   let modelElmt = document.createElement("div");
   modelElmt.innerText = state.modelBeingDrawn.name;
   modelsChildrenElmt.appendChild(modelElmt);
-  // add children's name recursively
-  let children = Object.keys(state.modelBeingDrawn.children);
-  children.forEach((child) => {
-    let childElmt = document.createElement("div");
-    childElmt.innerText = child;
-    modelsChildrenElmt.appendChild(childElmt);
+
+  //call addChildrenButtonRecursively
+  let childrenObject = state.modelBeingDrawn.children;
+  let childrenList = Object.keys(childrenObject);
+  childrenList.forEach((child) => {
+    addChildrenButtonRecursively(childrenObject[child], modelsChildrenElmt);
   });
 }
+// add children's name recursively as a button that can be clicked. on click, change modelInFocus
+function addChildrenButtonRecursively(child, modelsChildrenElmt) {
+  let childElmt = document.createElement("button");
+  childElmt.innerText = child.name;
+  childElmt.addEventListener("click", (e) => {
+    state.modelInFocus = child;
+  });
+  modelsChildrenElmt.appendChild(childElmt);
+
+  let childrenObject = child.children;
+  let childrenList = Object.keys(childrenObject);
+  childrenList.forEach((child) => {
+    addChildrenButtonRecursively(childrenObject[child], modelsChildrenElmt);
+  });
+}
+
 function setupModelListener() {
   let modelElmt = document.querySelectorAll("input[name=model]");
   modelElmt.forEach((elmt) => {
