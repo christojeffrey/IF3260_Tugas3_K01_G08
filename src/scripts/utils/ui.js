@@ -102,6 +102,8 @@ function setupKeyframeListener() {
     // update model
     state.modelBeingDrawn.updateModelBeingDrawnAtFrame(parseInt(currentFrameCountElmt.value));
     state.modelBeingDrawn.updateModelBeingDrawnFully();
+    // update slider
+    inFocusManipulationListener();
   });
 
   // #max-frame-count text
@@ -143,6 +145,8 @@ function setupKeyframeListener() {
         }
         state.modelBeingDrawn.updateModelBeingDrawnAtFrame(parseInt(currentFrameCountElmt.value));
         state.modelBeingDrawn.updateModelBeingDrawnFully();
+        // update slider
+        inFocusManipulationListener();
       }, 1000);
     }
   });
