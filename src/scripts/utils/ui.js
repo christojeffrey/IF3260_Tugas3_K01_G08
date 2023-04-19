@@ -2,11 +2,12 @@ import { degToRad, radToDeg } from "../math/math.js";
 import { cs } from "../constant/cs.js";
 import { v3 } from "../math/v3.js";
 import { m4 } from "../math/m4.js";
-import { elbow, pig } from "../models/index.js";
+import { elbow, horse, pig } from "../models/index.js";
 
 //  update model list from here
 let modelListAsObject = {
   elbow,
+  horse,
   pig,
 };
 let state;
@@ -17,14 +18,26 @@ function setupUI(gl) {
   let firstObjectKey = Object.keys(modelListAsObject)[1];
   let modelBeingDrawn = modelListAsObject[firstObjectKey];
 
-  let modelInFocus = modelBeingDrawn.children.head;
+  console.log("modelBeingDrawn", modelBeingDrawn);
 
-  let projection = "orthographic";
+  let modelInFocus = modelBeingDrawn.children.firstArm;
+  console.log("modelInFocus", modelBeingDrawn.children.firstArm);
+  //modelInFocus.anchor = modelInFocus.anchor || [0, 0, 0];
+
+  // console.log("modelInFocus", modelInFocus);
+
+  // let projection = "orthographic";
+  // let projection = "oblique";
+  let projection = "perspective";
   let obliqueAngle = 45;
-  let perspectiveFoV = 60;
+  let perspectiveFoV = 90;
+  // let rotation = [degToRad(0), degToRad(0), degToRad(350)];
+  // let rotation = [degToRad(0), degToRad(315), degToRad(0)];
   let rotation = [degToRad(0), degToRad(0), degToRad(0)];
+  // let translation = [0, 0, 0];\
   let translation = [0, 0, 0];
   let scale = [1, 1, 1];
+  // let scale = [0.7, 0.7, 0.7];
   let camera = { radius: 10, angle: degToRad(0) };
   let shading = true;
   let animate = false;
@@ -45,6 +58,8 @@ function setupUI(gl) {
 
   // set state as the default state
   state = defaultState;
+
+  console.log("defaultState", defaultState.modelBeingDrawn);
 
   // Set canvas size
   resizeCanvasToDisplaySize(gl.canvas);
@@ -223,16 +238,36 @@ function setupFileListener() {
     let transformedPosition = [];
     for (let i = 0; i < state.modelInFocus.position.length; i += 3) {
       let vec = v3.create(state.modelInFocus.position[i], state.modelInFocus.position[i + 1], state.modelInFocus.position[i + 2]);
+      console.log(state.modelInFocus.anchor);
       let transformedVec = m4.multiplyWithV3(m4.transform(state.translation, state.rotation, state.scale, state.modelInFocus.anchor), vec);
       transformedVec = transformedVec.slice(0, 3);
       transformedPosition = [...transformedPosition, Math.round(transformedVec[0]), Math.round(transformedVec[1]), Math.round(transformedVec[2])];
     }
 
+    // for make default model with transformation
+    let rectangle_point = [
+    ]
+
+    for (let i = 0; i < state.modelInFocus.cubes.length; i++) {
+      rectangle_point.push(transformedPosition[(108*i) + 0]); rectangle_point.push(transformedPosition[(108*i) + 1]); rectangle_point.push(transformedPosition[(108*i) + 2]);
+      rectangle_point.push(transformedPosition[(108*i) + 3]); rectangle_point.push(transformedPosition[(108*i) + 4]); rectangle_point.push(transformedPosition[(108*i) + 5]);
+      rectangle_point.push(transformedPosition[(108*i) + 12]); rectangle_point.push(transformedPosition[(108*i) + 13]); rectangle_point.push(transformedPosition[(108*i) + 14]);
+      rectangle_point.push(transformedPosition[(108*i) + 6]); rectangle_point.push(transformedPosition[(108*i) + 7]); rectangle_point.push(transformedPosition[(108*i) + 8]);
+
+      rectangle_point.push(transformedPosition[(108*i) + 24]); rectangle_point.push(transformedPosition[(108*i) + 25]); rectangle_point.push(transformedPosition[(108*i) + 26]);
+      rectangle_point.push(transformedPosition[(108*i) + 30]); rectangle_point.push(transformedPosition[(108*i) + 31]); rectangle_point.push(transformedPosition[(108*i) + 32]);
+      rectangle_point.push(transformedPosition[(108*i) + 21]); rectangle_point.push(transformedPosition[(108*i) + 22]); rectangle_point.push(transformedPosition[(108*i) + 23]);
+      rectangle_point.push(transformedPosition[(108*i) + 18]); rectangle_point.push(transformedPosition[(108*i) + 19]); rectangle_point.push(transformedPosition[(108*i) + 20]);
+    }
     let data = {
       name: state.modelInFocus.name,
       position: transformedPosition,
       color: state.modelInFocus.color,
     };
+
+    // let data = {
+    //   rectangle_point: rectangle_point,
+    // }
     let json = JSON.stringify(data);
     let blob = new Blob([json], { type: "application/json" });
     let url = URL.createObjectURL(blob);
@@ -649,8 +684,16 @@ function setupScaleListener() {
 
 function inFocusManipulationListener() {
   // translate
-  let idNameInput = ["translateXInFocusInput", "translateYInFocusInput", "translateZInFocusInput"];
-  let idNameLabel = ["translateXInFocusValue", "translateYInFocusValue", "translateZInFocusValue"];
+  let idNameInput = [
+    "translateXInFocusInput", "translateYInFocusInput", "translateZInFocusInput",
+    "rotateXInFocusInput", "rotateYInFocusInput", "rotateZInFocusInput",
+    "scaleXInFocusInput", "scaleYInFocusInput", "scaleZInFocusInput",
+  ];
+  let idNameLabel = [
+    "translateXInFocusValue", "translateYInFocusValue", "translateZInFocusValue",
+    "rotateXInFocusValue", "rotateYInFocusValue", "rotateZInFocusValue",
+    "scaleXInFocusValue", "scaleYInFocusValue", "scaleZInFocusValue",
+  ];
   for (let i = 0; i < 3; i++) {
     let elmtInput = document.querySelector("#" + idNameInput[i]);
     elmtInput.min = -(Math.round(cs.width / 1000) * 1000) / 4;
@@ -664,6 +707,36 @@ function inFocusManipulationListener() {
       state.modelBeingDrawn.updateModelBeingDrawnFully();
     });
   }
+
+  for (let i = 0; i < 3; i++) {
+    let elmtInput = document.querySelector("#" + idNameInput[i + 3]);
+    elmtInput.min = -360;
+    elmtInput.max = 360;
+    elmtInput.addEventListener("input", (e) => {
+      // parse the value to float
+      state.modelInFocus.rotation[i] = degToRad(parseFloat(e.target.value));
+      let elmtValue = document.querySelector("#" + idNameLabel[i + 3]);
+      elmtValue.textContent = e.target.value;
+      elmtInput.value = e.target.value;
+      state.modelBeingDrawn.updateModelBeingDrawnFully();
+    });
+  }
+  
+  for (let i = 0; i < 3; i++) {
+    let elmtInput = document.querySelector("#" + idNameInput[i + 6]);
+    elmtInput.min = 0;
+    elmtInput.max = 3;
+    elmtInput.addEventListener("input", (e) => {
+      // parse the value to float
+      state.modelInFocus.scale[i] = parseFloat(e.target.value);
+      let elmtValue = document.querySelector("#" + idNameLabel[i + 6]);
+      elmtValue.textContent = e.target.value;
+      elmtInput.value = e.target.value;
+      state.modelBeingDrawn.updateModelBeingDrawnFully();
+    });
+  }
+
+
   // TODO: rotation
   // TODO: scale
 }

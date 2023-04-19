@@ -1,6 +1,8 @@
 import { primaryColors } from "../../constant/colors.js";
 import { v3 } from "../../math/v3.js";
+import { m4 } from "../../math/m4.js";
 import { Point } from "./point.js";
+import { degToRad } from "../../math/math.js";
 
 let minX, maxX, minY, maxY, minZ, maxZ;
 
@@ -12,7 +14,7 @@ export class Model {
     // children, which is an object of Models with the name of the object as key
     this.children = {};
     // object anchor. let's make it a coordinate relative to the object's center location
-    this.anchor = new Point(0, 0, 0);
+    this.anchor = [0, 0, 0];
 
     // private
     this.color = [];
@@ -23,14 +25,29 @@ export class Model {
     // TODO: adapt to Cube class.
 
     // modelManipulation
-    this.translation = [0, 0, 0];
+    this.translation = [degToRad(0), degToRad(0), degToRad(0)];
     this.rotation = [0, 0, 0];
     this.scale = [1, 1, 1];
   }
   addChildren(name, model) {
+    console.log("add children for", this.name, name, model.scale);
     this.children[name] = model;
+    
+    let position = [...this.position, ...model.position]
+    ;
+
+    minX = Math.min(...position.filter((_, i) => i % 3 === 0));
+    maxX = Math.max(...position.filter((_, i) => i % 3 === 0));
+    minY = Math.min(...position.filter((_, i) => i % 3 === 1));
+    maxY = Math.max(...position.filter((_, i) => i % 3 === 1));
+    minZ = Math.min(...position.filter((_, i) => i % 3 === 2));
+    maxZ = Math.max(...position.filter((_, i) => i % 3 === 2));
+
+    this.anchor = [minX + (maxX - minX) / 2, minY + (maxY - minY) / 2, minZ + (maxZ - minZ) / 2];
   }
   setAnchor(anchor) {
+    // console.log("name", this.name);
+    // console.log("set anchor", anchor);
     this.anchor = anchor;
   }
 
@@ -62,12 +79,15 @@ export class Model {
         this.position = [...this.position, ...positions];
       }
     }
-
-    // this.setCenterAsAnchor();
   }
 
   setCenterAsAnchor() {
     // set center
+    if (this.position.length === 0) {
+      this.anchor = [0, 0, 0]; // set to origin
+      return;
+    }
+
     minX = Math.min(...this.position.filter((_, i) => i % 3 === 0));
     maxX = Math.max(...this.position.filter((_, i) => i % 3 === 0));
     minY = Math.min(...this.position.filter((_, i) => i % 3 === 1));
@@ -75,40 +95,54 @@ export class Model {
     minZ = Math.min(...this.position.filter((_, i) => i % 3 === 2));
     maxZ = Math.max(...this.position.filter((_, i) => i % 3 === 2));
 
-    this.anchor = [(minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2];
+    this.anchor = [minX + (maxX - minX) / 2, minY + (maxY - minY) / 2, minZ + (maxZ - minZ) / 2];
   }
 
   updateModelBeingDrawnFully() {
     // update position based on translation, rotation, scale and anchor
     // do this recursively for all children
     this.completeModelUsingCubes();
-    console.log("name of this model", this.name);
-    console.log(this.position);
+    // console.log("name of this model", this.name);
+    // console.log(this.position);
+    // console.log("====================================");
+    // console.log("anchor", this.anchor);
 
     let childrenKeys = Object.keys(this.children);
     childrenKeys.forEach((key) => {
-      console.log(key);
+      // console.log(key);
       this.children[key].updateModelBeingDrawnFully();
-      console.log("this.children[childrenKeys[key]].position");
-      console.log(this.children[key].position);
+      // console.log("this.children[childrenKeys[key]].position");
+      // console.log(this.children[key].position);
       this.position = [...this.position, ...this.children[key].position];
       this.color = [...this.color, ...this.children[key].color];
       this.normal = [...this.normal, ...this.children[key].normal];
+      // this.cubes = [...this.cubes, ...this.children[key].cubes];
     });
-    console.log("done");
-    console.log("====================================");
-    console.log("this.position after");
-    console.log(this.position);
-
+    // console.log("done");
+    // console.log("====================================");
+    // console.log("this.position after");
+    // console.log(this.position);
+    // console.log("anchor", this.anchor);
     // // update position based on translation, rotation, scale and anchor
     let newPositions = [];
+    let newNormals = [];
     // group position by 3, then manipulate it
     for (let i = 0; i < this.position.length; i += 3) {
       // console.log(this.position[i], this.position[i + 1], this.position[i + 2]);
+      // let vec = v3.create(this.position[i], this.position[i + 1], this.position[i + 2]);
+      // let transformedPoint = m4.multiplyWithV3(m4.transform(this.translation, this.rotation, this.scale, this.anchor), vec).slice(0, 3);
+
+      // let vecNormal = v3.create(this.normal[i], this.normal[i + 1], this.normal[i + 2]);
+      // let transformedNormal = m4.multiplyWithV3(m4.rotation(this.rotation[0], this.rotation[1], this.rotation[2]), vecNormal).slice(0, 3);
+      // transformedNormal = [Math.round(transformedNormal[0]), Math.round(transformedNormal[1]), Math.round(transformedNormal[2])];
+
       let temporaryPoint = new Point(this.position[i], this.position[i + 1], this.position[i + 2]);
+      let temporaryNormalPoint = new Point(this.normal[i], this.normal[i + 1], this.normal[i + 2]);
       // translate
-      console.log("temporaryPoint");
-      console.log(temporaryPoint.flatten());
+      // console.log("temporaryPoint for ", this.name);
+      // console.log("temporaryPoint before", temporaryPoint.flatten());
+      // console.log(temporaryPoint.flatten());
+      // console.log("anchor", this.anchor);
       temporaryPoint.translate(this.translation);
 
       // rotate
@@ -117,11 +151,29 @@ export class Model {
       // scale
       temporaryPoint.scale(this.scale, this.anchor);
 
+      // rotate
+      temporaryNormalPoint.rotate(this.rotation, [0, 0, 0])
+
+      let temporaryNormal = temporaryNormalPoint.flatten();
+      temporaryNormal = [Math.round(temporaryNormal[0]), Math.round(temporaryNormal[1]), Math.round(temporaryNormal[2])];
+
+      console.log("temporaryPoint after", temporaryPoint.flatten());
+
       newPositions = [...newPositions, ...temporaryPoint.flatten()];
+      newNormals= [...newNormals, ...temporaryNormal];
+      // newPositions = [...newPositions, ...transformedPoint];
+      // newNormals = [...newNormals, ...transformedNormal];
     }
 
-    console.log("newPositions");
-    console.log(newPositions);
+    console.log("newPositions for", this.name, newPositions);
     this.position = newPositions;
+    this.normal = newNormals;
+    // console.log("anchor for", this.name, this.anchor);
+    // this.setCenterAsAnchor();
+    // console.log("newAnchor for", this.name, this.anchor);
+    // console.log("Normal for", this.name, this.normal);
+    // console.log("newNormal for", this.name, newNormal);
+
+    // this.completeModelUsingCubes();
   }
 }
