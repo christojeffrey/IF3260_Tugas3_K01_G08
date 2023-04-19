@@ -34,7 +34,7 @@ export class Model {
     this.keyframes.push(keyframe);
   }
   addChildren(name, model) {
-    console.log("add children for", this.name, name, model.scale);
+    // console.log("add children for", this.name, name, model.scale);
     this.children[name] = model;
 
     let position = [...this.position, ...model.position];
@@ -159,7 +159,7 @@ export class Model {
       let temporaryNormal = temporaryNormalPoint.flatten();
       temporaryNormal = [Math.round(temporaryNormal[0]), Math.round(temporaryNormal[1]), Math.round(temporaryNormal[2])];
 
-      console.log("temporaryPoint after", temporaryPoint.flatten());
+      // console.log("temporaryPoint after", temporaryPoint.flatten());
 
       newPositions = [...newPositions, ...temporaryPoint.flatten()];
       newNormals = [...newNormals, ...temporaryNormal];
@@ -167,7 +167,7 @@ export class Model {
       // newNormals = [...newNormals, ...transformedNormal];
     }
 
-    console.log("newPositions for", this.name, newPositions);
+    // console.log("newPositions for", this.name, newPositions);
     this.position = newPositions;
     this.normal = newNormals;
     // console.log("anchor for", this.name, this.anchor);

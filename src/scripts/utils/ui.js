@@ -119,7 +119,7 @@ function setupKeyframeListener() {
       let currentFrameCount = parseInt(currentFrameCountElmt.value);
 
       let interval = setInterval(() => {
-        if (currentFrameCount < maxModelFrame) {
+        if (currentFrameCount < maxModelFrame && state.isKeyframePlaying) {
           currentFrameCount++;
           currentFrameCountElmt.value = currentFrameCount;
           state.modelBeingDrawn.updateModelBeingDrawnAtFrame(currentFrameCount);
@@ -138,6 +138,17 @@ function setupKeyframeListener() {
     }
   });
   // #reset-animation button
+  let resetAnimationButton = document.querySelector("#reset-animation");
+  resetAnimationButton.addEventListener("click", () => {
+    // set current frame count to 0
+    let currentFrameCountElmt = document.querySelector("#current-frame-count");
+    currentFrameCountElmt.value = 0;
+    // change text
+    playAnimationButton.textContent = "Play";
+    state.isKeyframePlaying = false;
+    // update model being drawn
+    state.modelBeingDrawn.updateModelBeingDrawnAtFrame(0);
+  });
 }
 function setupModelList() {
   // id:model-list
@@ -765,6 +776,7 @@ function inFocusManipulationListener() {
     });
   }
 
+  // rotate
   for (let i = 0; i < 3; i++) {
     let elmtInput = document.querySelector("#" + idNameInput[i + 3]);
     elmtInput.min = -360;
@@ -778,7 +790,7 @@ function inFocusManipulationListener() {
       state.modelBeingDrawn.updateModelBeingDrawnFully();
     });
   }
-
+  // scale
   for (let i = 0; i < 3; i++) {
     let elmtInput = document.querySelector("#" + idNameInput[i + 6]);
     elmtInput.min = 0;
@@ -792,9 +804,6 @@ function inFocusManipulationListener() {
       state.modelBeingDrawn.updateModelBeingDrawnFully();
     });
   }
-
-  // TODO: rotation
-  // TODO: scale
 }
 
 function setupCameraListener() {

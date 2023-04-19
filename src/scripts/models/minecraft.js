@@ -1,7 +1,7 @@
-import { Point } from "./classes/point.js";
-import { Model } from "./classes/model.js";
-import { Cube } from "./classes/cube.js";
-import { Keyframe } from "./classes/keyframe.js";
+import { Point } from "./base/point.js";
+import { Model } from "./base/model.js";
+import { Cube } from "./base/cube.js";
+import { Keyframe } from "./base/keyframe.js";
 
 let minecraft = new Model("elbow");
 

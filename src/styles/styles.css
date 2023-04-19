@@ -140,16 +140,24 @@ body {
   /* fix bottom middle, width 1/4 screen */
   position: fixed;
   bottom: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 25vw;
 }
 #animation-bar {
   border: 2px solid black;
+  display: flex;
+  flex-direction: row;
+  padding: 0.5rem;
+  /* center */
+  justify-content: center;
+  align-items: center;
 }
 
 #frame-container {
   display: flex;
   /* center */
   justify-content: center;
+  align-items: center;
+  padding: 10px;
 }
