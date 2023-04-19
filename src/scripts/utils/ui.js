@@ -70,11 +70,26 @@ function setupUI(gl) {
   setupScaleListener();
   setupCameraListener();
 
+  // animation
+  setupKeyframeListener();
+
   window.addEventListener("resize", resizeCanvasToDisplaySize(gl.canvas));
 
   return state;
 }
-
+function setupKeyframeListener() {
+  // input: #current-frame-count
+  // #max-frame-count text
+  // set based on the current model being drawn
+  let maxFrameCountElmt = document.querySelector("#max-frame-count");
+  let maxModelFrame = state.modelBeingDrawn.getMaxFrameCount();
+  // add slash infront
+  maxFrameCountElmt.textContent = `/${maxModelFrame}`;
+  // #play-animation button
+  let playAnimationButton = document.querySelector("#play-animation");
+  playAnimationButton.addEventListener("click", () => {});
+  // #reset-animation button
+}
 function setupModelList() {
   // id:model-list
   {
