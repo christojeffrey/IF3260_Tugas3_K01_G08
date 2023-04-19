@@ -13,6 +13,8 @@ head.completeModelUsingCubes();
 // add animation
 let headKeyframe1 = new Keyframe(5);
 headKeyframe1.setTranslation([0, -200, 0]);
+headKeyframe1.setRotation([0, 90, 0]);
+headKeyframe1.setScale([1, 1, 2]);
 head.addAnimation(headKeyframe1);
 
 // Arms

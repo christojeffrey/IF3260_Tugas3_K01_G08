@@ -245,6 +245,30 @@ export class Model {
     this.translation = translation;
 
     // update rotation
+    let rotation = beforeKeyframe.getRotation();
+    if (afterKeyframe.end == frame) {
+      rotation = afterKeyframe.getRotation();
+    } else {
+      let afterRotation = afterKeyframe.getRotation();
+      let timeDifference = afterKeyframe.end - beforeKeyframe.end;
+      let timeElapsed = frame - beforeKeyframe.end;
+      let timeRatio = timeElapsed / timeDifference;
+      rotation = [rotation[0] + (afterRotation[0] - rotation[0]) * timeRatio, rotation[1] + (afterRotation[1] - rotation[1]) * timeRatio, rotation[2] + (afterRotation[2] - rotation[2]) * timeRatio];
+    }
+    this.rotation = rotation;
+
+    // update scale
+    let scale = beforeKeyframe.getScale();
+    if (afterKeyframe.end == frame) {
+      scale = afterKeyframe.getScale();
+    } else {
+      let afterScale = afterKeyframe.getScale();
+      let timeDifference = afterKeyframe.end - beforeKeyframe.end;
+      let timeElapsed = frame - beforeKeyframe.end;
+      let timeRatio = timeElapsed / timeDifference;
+      scale = [scale[0] + (afterScale[0] - scale[0]) * timeRatio, scale[1] + (afterScale[1] - scale[1]) * timeRatio, scale[2] + (afterScale[2] - scale[2]) * timeRatio];
+    }
+    this.scale = scale;
 
     // update children
     let childrenKeys = Object.keys(this.children);
