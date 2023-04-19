@@ -2,10 +2,11 @@ import { degToRad, radToDeg } from "../math/math.js";
 import { cs } from "../constant/cs.js";
 import { v3 } from "../math/v3.js";
 import { m4 } from "../math/m4.js";
-import { elbow, pig } from "../models/index.js";
+import { minecraft, elbow, pig } from "../models/index.js";
 
 //  update model list from here
 let modelListAsObject = {
+  minecraft,
   elbow,
   pig,
 };
@@ -14,10 +15,10 @@ let defaultState;
 
 function setupUI(gl) {
   // this is the default object. take the first object in the list
-  let firstObjectKey = Object.keys(modelListAsObject)[1];
+  let firstObjectKey = Object.keys(modelListAsObject)[0];
   let modelBeingDrawn = modelListAsObject[firstObjectKey];
 
-  let modelInFocus = modelBeingDrawn.children.head;
+  let modelInFocus = modelBeingDrawn;
 
   let projection = "orthographic";
   let obliqueAngle = 45;
