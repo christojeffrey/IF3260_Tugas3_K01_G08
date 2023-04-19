@@ -205,6 +205,7 @@ export class Model {
     // then do linear interpolation
     let beforeKeyframe = null;
     let afterKeyframe = null;
+
     for (let i = 0; i < this.keyframes.length; i++) {
       if (this.keyframes[i].end > frame) {
         afterKeyframe = this.keyframes[i];
@@ -217,27 +218,31 @@ export class Model {
     // if there is no beforeKeyframe, then set the previous as 0,0,0 for translation, rotation. 1,1,1 for scale
     if (beforeKeyframe === null) {
       beforeKeyframe = new Keyframe(0);
-      beforeKeyframe.setRotation(0, 0, 0);
-      beforeKeyframe.setScale(1, 1, 1);
-      beforeKeyframe.setTranslation(0, 0, 0);
+      beforeKeyframe.setRotation([0, 0, 0]);
+      beforeKeyframe.setScale([1, 1, 1]);
+      beforeKeyframe.setTranslation([0, 0, 0]);
     }
 
     if (afterKeyframe === null) {
-      afterKeyframe = new Keyframe(0);
-      afterKeyframe.setRotation(0, 0, 0);
-      afterKeyframe.setScale(1, 1, 1);
-      afterKeyframe.setTranslation(0, 0, 0);
+      afterKeyframe = new Keyframe(frame);
+      afterKeyframe.setRotation([0, 0, 0]);
+      afterKeyframe.setScale([1, 1, 1]);
+      afterKeyframe.setTranslation([0, 0, 0]);
     }
 
     // update translation
     let translation = beforeKeyframe.getTranslation();
-    if (afterKeyframe !== null) {
+    if (afterKeyframe.end == frame) {
+      translation = afterKeyframe.getTranslation();
+    } else {
       let afterTranslation = afterKeyframe.getTranslation();
       let timeDifference = afterKeyframe.end - beforeKeyframe.end;
       let timeElapsed = frame - beforeKeyframe.end;
       let timeRatio = timeElapsed / timeDifference;
+      console.log(translation[0], afterTranslation[0], timeRatio);
       translation = [translation[0] + (afterTranslation[0] - translation[0]) * timeRatio, translation[1] + (afterTranslation[1] - translation[1]) * timeRatio, translation[2] + (afterTranslation[2] - translation[2]) * timeRatio];
     }
+    console.log("after translation", translation);
     this.translation = translation;
 
     // TODO: update rotation and scale

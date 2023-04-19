@@ -124,7 +124,7 @@ function setupKeyframeListener() {
           currentFrameCountElmt.value = currentFrameCount;
           state.modelBeingDrawn.updateModelBeingDrawnAtFrame(currentFrameCount);
           // NaN problem
-          // state.modelBeingDrawn.updateModelBeingDrawnFully();
+          state.modelBeingDrawn.updateModelBeingDrawnFully();
         } else {
           // stop interval
           clearInterval(interval);
