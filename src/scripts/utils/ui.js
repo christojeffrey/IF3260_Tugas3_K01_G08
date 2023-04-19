@@ -2,7 +2,9 @@ import { degToRad, radToDeg } from "../math/math.js";
 import { cs } from "../constant/cs.js";
 import { v3 } from "../math/v3.js";
 import { m4 } from "../math/m4.js";
+
 import { minecraft, elbow, pig, horse } from "../models/index.js";
+
 
 //  update model list from here
 let modelListAsObject = {
@@ -20,6 +22,7 @@ function setupUI(gl) {
   let modelBeingDrawn = modelListAsObject[firstObjectKey];
 
   let modelInFocus = modelBeingDrawn;
+
 
   //modelInFocus.anchor = modelInFocus.anchor || [0, 0, 0];
 
@@ -318,32 +321,18 @@ function setupFileListener() {
     // for make default model with transformation
     let rectangle_point = [];
 
-    for (let i = 0; i < state.modelInFocus.cubes.length; i++) {
-      rectangle_point.push(transformedPosition[108 * i + 0]);
-      rectangle_point.push(transformedPosition[108 * i + 1]);
-      rectangle_point.push(transformedPosition[108 * i + 2]);
-      rectangle_point.push(transformedPosition[108 * i + 3]);
-      rectangle_point.push(transformedPosition[108 * i + 4]);
-      rectangle_point.push(transformedPosition[108 * i + 5]);
-      rectangle_point.push(transformedPosition[108 * i + 12]);
-      rectangle_point.push(transformedPosition[108 * i + 13]);
-      rectangle_point.push(transformedPosition[108 * i + 14]);
-      rectangle_point.push(transformedPosition[108 * i + 6]);
-      rectangle_point.push(transformedPosition[108 * i + 7]);
-      rectangle_point.push(transformedPosition[108 * i + 8]);
 
-      rectangle_point.push(transformedPosition[108 * i + 24]);
-      rectangle_point.push(transformedPosition[108 * i + 25]);
-      rectangle_point.push(transformedPosition[108 * i + 26]);
-      rectangle_point.push(transformedPosition[108 * i + 30]);
-      rectangle_point.push(transformedPosition[108 * i + 31]);
-      rectangle_point.push(transformedPosition[108 * i + 32]);
-      rectangle_point.push(transformedPosition[108 * i + 21]);
-      rectangle_point.push(transformedPosition[108 * i + 22]);
-      rectangle_point.push(transformedPosition[108 * i + 23]);
-      rectangle_point.push(transformedPosition[108 * i + 18]);
-      rectangle_point.push(transformedPosition[108 * i + 19]);
-      rectangle_point.push(transformedPosition[108 * i + 20]);
+    for (let i = 0; i < state.modelInFocus.cubes.length; i++) {
+      rectangle_point.push(transformedPosition[(108*i) + 0]); rectangle_point.push(transformedPosition[(108*i) + 1]); rectangle_point.push(transformedPosition[(108*i) + 2]);
+      rectangle_point.push(transformedPosition[(108*i) + 3]); rectangle_point.push(transformedPosition[(108*i) + 4]); rectangle_point.push(transformedPosition[(108*i) + 5]);
+      rectangle_point.push(transformedPosition[(108*i) + 12]); rectangle_point.push(transformedPosition[(108*i) + 13]); rectangle_point.push(transformedPosition[(108*i) + 14]);
+      rectangle_point.push(transformedPosition[(108*i) + 6]); rectangle_point.push(transformedPosition[(108*i) + 7]); rectangle_point.push(transformedPosition[(108*i) + 8]);
+
+      rectangle_point.push(transformedPosition[(108*i) + 24]); rectangle_point.push(transformedPosition[(108*i) + 25]); rectangle_point.push(transformedPosition[(108*i) + 26]);
+      rectangle_point.push(transformedPosition[(108*i) + 30]); rectangle_point.push(transformedPosition[(108*i) + 31]); rectangle_point.push(transformedPosition[(108*i) + 32]);
+      rectangle_point.push(transformedPosition[(108*i) + 21]); rectangle_point.push(transformedPosition[(108*i) + 22]); rectangle_point.push(transformedPosition[(108*i) + 23]);
+      rectangle_point.push(transformedPosition[(108*i) + 18]); rectangle_point.push(transformedPosition[(108*i) + 19]); rectangle_point.push(transformedPosition[(108*i) + 20]);
+
     }
     let data = {
       name: state.modelInFocus.name,
@@ -770,8 +759,17 @@ function setupScaleListener() {
 
 function inFocusManipulationListener() {
   // translate
-  let idNameInput = ["translateXInFocusInput", "translateYInFocusInput", "translateZInFocusInput", "rotateXInFocusInput", "rotateYInFocusInput", "rotateZInFocusInput", "scaleXInFocusInput", "scaleYInFocusInput", "scaleZInFocusInput"];
-  let idNameLabel = ["translateXInFocusValue", "translateYInFocusValue", "translateZInFocusValue", "rotateXInFocusValue", "rotateYInFocusValue", "rotateZInFocusValue", "scaleXInFocusValue", "scaleYInFocusValue", "scaleZInFocusValue"];
+
+  let idNameInput = [
+    "translateXInFocusInput", "translateYInFocusInput", "translateZInFocusInput",
+    "rotateXInFocusInput", "rotateYInFocusInput", "rotateZInFocusInput",
+    "scaleXInFocusInput", "scaleYInFocusInput", "scaleZInFocusInput",
+  ];
+  let idNameLabel = [
+    "translateXInFocusValue", "translateYInFocusValue", "translateZInFocusValue",
+    "rotateXInFocusValue", "rotateYInFocusValue", "rotateZInFocusValue",
+    "scaleXInFocusValue", "scaleYInFocusValue", "scaleZInFocusValue",
+  ];
   for (let i = 0; i < 3; i++) {
     let elmtInput = document.querySelector("#" + idNameInput[i]);
     let elmtValue = document.querySelector("#" + idNameLabel[i]);
@@ -810,6 +808,7 @@ function inFocusManipulationListener() {
       state.modelBeingDrawn.updateModelBeingDrawnFully();
     });
   }
+
   // scale
   for (let i = 0; i < 3; i++) {
     let elmtInput = document.querySelector("#" + idNameInput[i + 6]);
@@ -829,6 +828,7 @@ function inFocusManipulationListener() {
       state.modelBeingDrawn.updateModelBeingDrawnFully();
     });
   }
+
 }
 
 function setupCameraListener() {

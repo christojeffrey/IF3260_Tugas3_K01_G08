@@ -2,7 +2,9 @@ import { primaryColors } from "../../constant/colors.js";
 import { v3 } from "../../math/v3.js";
 import { m4 } from "../../math/m4.js";
 import { Point } from "./point.js";
+
 import { Keyframe } from "./keyframe.js";
+
 import { degToRad } from "../../math/math.js";
 
 let minX, maxX, minY, maxY, minZ, maxZ;
@@ -22,8 +24,8 @@ export class Model {
     this.position = [];
     this.normal = [];
 
-    // TODO: add keyframes. which is an array of Keyframe. Keyframe is an object that has the transformation argument.
     this.keyframes = [];
+
     // modelManipulation
     this.translation = [degToRad(0), degToRad(0), degToRad(0)];
     this.rotation = [0, 0, 0];
@@ -38,6 +40,7 @@ export class Model {
     this.children[name] = model;
 
     let position = [...this.position, ...model.position];
+
     minX = Math.min(...position.filter((_, i) => i % 3 === 0));
     maxX = Math.max(...position.filter((_, i) => i % 3 === 0));
     minY = Math.min(...position.filter((_, i) => i % 3 === 1));
@@ -156,6 +159,7 @@ export class Model {
       // rotate
       temporaryNormalPoint.rotate(this.rotation, [0, 0, 0]);
 
+
       let temporaryNormal = temporaryNormalPoint.flatten();
       temporaryNormal = [Math.round(temporaryNormal[0]), Math.round(temporaryNormal[1]), Math.round(temporaryNormal[2])];
 
@@ -163,11 +167,11 @@ export class Model {
 
       newPositions = [...newPositions, ...temporaryPoint.flatten()];
       newNormals = [...newNormals, ...temporaryNormal];
+
       // newPositions = [...newPositions, ...transformedPoint];
       // newNormals = [...newNormals, ...transformedNormal];
     }
 
-    // console.log("newPositions for", this.name, newPositions);
     this.position = newPositions;
     this.normal = newNormals;
     // console.log("anchor for", this.name, this.anchor);
@@ -178,6 +182,7 @@ export class Model {
 
     // this.completeModelUsingCubes();
   }
+
 
   getMaxFrameCount() {
     // recursively get the max animation time
