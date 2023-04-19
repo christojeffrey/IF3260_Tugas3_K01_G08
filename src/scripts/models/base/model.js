@@ -118,7 +118,6 @@ export class Model {
       this.normal = [...this.normal, ...this.children[key].normal];
       // this.cubes = [...this.cubes, ...this.children[key].cubes];
     });
-    this.setCenterAsAnchor();
     // console.log("done");
     // console.log("====================================");
     // console.log("this.position after");
