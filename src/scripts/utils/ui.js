@@ -93,24 +93,24 @@ function setupUI(gl) {
   return state;
 }
 function setupKeyframeListener() {
-  // input: #current-frame-count
+  // #current-frame-count
   let currentFrameCountElmt = document.querySelector("#current-frame-count");
   // set to 0
   currentFrameCountElmt.value = 0;
   // change event
   currentFrameCountElmt.addEventListener("change", () => {
-    // get value
-    let currentFrameCount = parseInt(currentFrameCountElmt.value);
     // update model
-    state.modelBeingDrawn.updateModelBeingDrawnAtFrame(currentFrameCount);
+    state.modelBeingDrawn.updateModelBeingDrawnAtFrame(parseInt(currentFrameCountElmt.value));
     state.modelBeingDrawn.updateModelBeingDrawnFully();
   });
+
   // #max-frame-count text
   // set based on the current model being drawn
   let maxFrameCountElmt = document.querySelector("#max-frame-count");
   let maxModelFrame = state.modelBeingDrawn.getMaxFrameCount();
   // add slash infront
   maxFrameCountElmt.textContent = `/${maxModelFrame}`;
+
   // #play-animation button
   let playAnimationButton = document.querySelector("#play-animation");
   playAnimationButton.addEventListener("click", () => {
@@ -123,31 +123,26 @@ function setupKeyframeListener() {
       state.isKeyframePlaying = true;
       // call model updateModelBeingDrawnAtFrame every second until the frame count is equal to the max frame count. then change text
       let currentFrameCountElmt = document.querySelector("#current-frame-count");
-      let currentFrameCount = parseInt(currentFrameCountElmt.value);
 
       let interval = setInterval(() => {
         if (state.isKeyframePlaying) {
-          if (currentFrameCount < maxModelFrame) {
-            currentFrameCount++;
-            currentFrameCountElmt.value = currentFrameCount;
-            state.modelBeingDrawn.updateModelBeingDrawnAtFrame(currentFrameCount);
-            state.modelBeingDrawn.updateModelBeingDrawnFully();
+          if (parseInt(currentFrameCountElmt.value) < maxModelFrame) {
+            currentFrameCountElmt.value = parseInt(currentFrameCountElmt.value) + 1;
           } else {
+            // animation is done
             // stop interval
-            clearInterval(interval);
-            // change text
-            playAnimationButton.textContent = "Play";
-            state.isKeyframePlaying = false;
             currentFrameCountElmt.value = 0;
-            state.modelBeingDrawn.updateModelBeingDrawnAtFrame(0);
-            state.modelBeingDrawn.updateModelBeingDrawnFully();
+            state.isKeyframePlaying = false;
           }
         } else {
           playAnimationButton.textContent = "Play";
           state.isKeyframePlaying = false;
           // stop interval
           clearInterval(interval);
+          // update model
         }
+        state.modelBeingDrawn.updateModelBeingDrawnAtFrame(parseInt(currentFrameCountElmt.value));
+        state.modelBeingDrawn.updateModelBeingDrawnFully();
       }, 1000);
     }
   });
@@ -244,11 +239,7 @@ function setupModelListener() {
     state.modelBeingDrawn = modelListAsObject[model];
     state.modelInFocus = state.modelBeingDrawn;
     setModelsChildrenList();
-    // state.modelInFocus.position = modelListAsObject[model].position;
-    // state.modelInFocus.color = modelListAsObject[model].color;
-    // state.modelInFocus.normal = modelListAsObject[model].normal;
-    // state.modelInFocus.anchor = modelListAsObject[model].anchor;
-    // state.totalVertices = state.modelInFocus.position.length / 3;
+    setupKeyframeListener();
   }
 }
 
