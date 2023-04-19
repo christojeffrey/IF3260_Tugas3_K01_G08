@@ -12,7 +12,7 @@ export class Cube {
 
     this.createRectangles();
   }
-  
+
   static fromPoints(points) {
     return new Cube(null, null, null, null, points);
   }
@@ -23,7 +23,7 @@ export class Cube {
   createRectangles() {
     // add 8 points
     if (this.points.length == 8) {
-      console.log("creating cube from points");
+
       this.rectangles = [];
       this.rectangles.push(new Rectangle(this.points[0], this.points[1], this.points[2], this.points[3]));
       this.rectangles.push(new Rectangle(this.points[7], this.points[6], this.points[5], this.points[4]));
@@ -35,7 +35,6 @@ export class Cube {
       let rectangles = [];
       let points = [];
 
-      console.log("creating cube from dimensions");
       // back
       // left
       points.push(new Point(this.center.x - this.width / 2, this.center.y - this.length / 2, this.center.z - this.depth / 2));

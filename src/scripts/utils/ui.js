@@ -2,10 +2,13 @@ import { degToRad, radToDeg } from "../math/math.js";
 import { cs } from "../constant/cs.js";
 import { v3 } from "../math/v3.js";
 import { m4 } from "../math/m4.js";
-import { elbow, horse, pig } from "../models/index.js";
+
+import { minecraft, elbow, pig, horse } from "../models/index.js";
+
 
 //  update model list from here
 let modelListAsObject = {
+  minecraft,
   elbow,
   horse,
   pig,
@@ -15,13 +18,12 @@ let defaultState;
 
 function setupUI(gl) {
   // this is the default object. take the first object in the list
-  let firstObjectKey = Object.keys(modelListAsObject)[1];
+  let firstObjectKey = Object.keys(modelListAsObject)[0];
   let modelBeingDrawn = modelListAsObject[firstObjectKey];
 
-  console.log("modelBeingDrawn", modelBeingDrawn);
+  let modelInFocus = modelBeingDrawn;
 
-  let modelInFocus = modelBeingDrawn.children.firstArm;
-  console.log("modelInFocus", modelBeingDrawn.children.firstArm);
+
   //modelInFocus.anchor = modelInFocus.anchor || [0, 0, 0];
 
   // console.log("modelInFocus", modelInFocus);
@@ -41,6 +43,7 @@ function setupUI(gl) {
   let camera = { radius: 10, angle: degToRad(0) };
   let shading = true;
   let animate = false;
+  let isKeyframePlaying = false;
 
   defaultState = {
     modelBeingDrawn,
@@ -54,6 +57,7 @@ function setupUI(gl) {
     camera,
     shading,
     animate,
+    isKeyframePlaying,
   };
 
   // set state as the default state
@@ -84,19 +88,86 @@ function setupUI(gl) {
   setupScaleListener();
   setupCameraListener();
 
+  // animation
+  setupKeyframeListener();
+
   window.addEventListener("resize", resizeCanvasToDisplaySize(gl.canvas));
 
   return state;
 }
+function setupKeyframeListener() {
+  // #current-frame-count
+  let currentFrameCountElmt = document.querySelector("#current-frame-count");
+  // set to 0
+  currentFrameCountElmt.value = 0;
+  // change event
+  currentFrameCountElmt.addEventListener("change", () => {
+    // update model
+    state.modelBeingDrawn.updateModelBeingDrawnAtFrame(parseInt(currentFrameCountElmt.value));
+    state.modelBeingDrawn.updateModelBeingDrawnFully();
+    // update slider
+    inFocusManipulationListener();
+  });
 
+  // #max-frame-count text
+  // set based on the current model being drawn
+  let maxFrameCountElmt = document.querySelector("#max-frame-count");
+  let maxModelFrame = state.modelBeingDrawn.getMaxFrameCount();
+  // add slash infront
+  maxFrameCountElmt.textContent = `/${maxModelFrame}`;
+
+  // #play-animation button
+  let playAnimationButton = document.querySelector("#play-animation");
+  playAnimationButton.addEventListener("click", () => {
+    // change text
+    if (state.isKeyframePlaying) {
+      playAnimationButton.textContent = "Play";
+      state.isKeyframePlaying = false;
+    } else {
+      playAnimationButton.textContent = "Pause";
+      state.isKeyframePlaying = true;
+      // call model updateModelBeingDrawnAtFrame every second until the frame count is equal to the max frame count. then change text
+      let currentFrameCountElmt = document.querySelector("#current-frame-count");
+
+      let interval = setInterval(() => {
+        if (state.isKeyframePlaying) {
+          if (parseInt(currentFrameCountElmt.value) < maxModelFrame) {
+            currentFrameCountElmt.value = parseInt(currentFrameCountElmt.value) + 1;
+          } else {
+            // animation is done
+            // stop interval
+            currentFrameCountElmt.value = 0;
+            state.isKeyframePlaying = false;
+          }
+        } else {
+          playAnimationButton.textContent = "Play";
+          state.isKeyframePlaying = false;
+          // stop interval
+          clearInterval(interval);
+          // update model
+        }
+        state.modelBeingDrawn.updateModelBeingDrawnAtFrame(parseInt(currentFrameCountElmt.value));
+        state.modelBeingDrawn.updateModelBeingDrawnFully();
+        // update slider
+        inFocusManipulationListener();
+      }, 1000);
+    }
+  });
+  // #reset-animation button
+  let resetAnimationButton = document.querySelector("#reset-animation");
+  resetAnimationButton.addEventListener("click", () => {
+    let currentFrameCountElmt = document.querySelector("#current-frame-count");
+    currentFrameCountElmt.value = 0;
+    // change text
+    playAnimationButton.textContent = "Play";
+    state.isKeyframePlaying = false;
+    // update model being drawn
+    state.modelBeingDrawn.updateModelBeingDrawnAtFrame(0);
+    state.modelBeingDrawn.updateModelBeingDrawnFully();
+  });
+}
 function setupModelList() {
   // id:model-list
-  {
-    /* <div style="padding-left: 1.7rem">
-  <input type="radio" id="tessaract" name="model" value="tessaract" />
-  <label for="tessaract">Tessaract</label>
-</div> */
-  }
   let modelListElmt = document.querySelector("#model-list");
   let modelList = Object.keys(modelListAsObject);
   modelList.forEach((model) => {
@@ -107,7 +178,8 @@ function setupModelList() {
     inputElmt.id = model;
     inputElmt.name = "model";
     inputElmt.value = model;
-    inputElmt.checked = model === defaultState.modelInFocus.name;
+    console.log("model", model);
+    inputElmt.checked = model === defaultState.modelBeingDrawn.name;
     let labelElmt = document.createElement("label");
     labelElmt.htmlFor = model;
     labelElmt.innerText = model;
@@ -124,6 +196,8 @@ function setModelsChildrenList() {
   let modelElmt = document.createElement("div");
   modelElmt.id = "model-in-focus";
   modelElmt.innerText = state.modelBeingDrawn.name;
+  // clear it first
+  modelsChildrenElmt.innerHTML = "";
   modelsChildrenElmt.appendChild(modelElmt);
 
   //call addChildrenButtonRecursively
@@ -146,6 +220,8 @@ function addChildrenButtonRecursively(leftMargin, child, modelsChildrenElmt) {
     let modelElmt = document.querySelector("#model-in-focus");
     modelElmt.innerText = child.name;
     state.modelInFocus = child;
+    // update model being drawn slider
+    inFocusManipulationListener();
   });
   childElmt.appendChild(buttonElmt);
   modelsChildrenElmt.appendChild(childElmt);
@@ -167,12 +243,10 @@ function setupModelListener() {
 
   function updateModel(e) {
     let model = e.target.value;
-    state.modelInFocus.name = model;
-    state.modelInFocus.position = modelListAsObject[model].position;
-    state.modelInFocus.color = modelListAsObject[model].color;
-    state.modelInFocus.normal = modelListAsObject[model].normal;
-    state.modelInFocus.anchor = modelListAsObject[model].anchor;
-    state.totalVertices = state.modelInFocus.position.length / 3;
+    state.modelBeingDrawn = modelListAsObject[model];
+    state.modelInFocus = state.modelBeingDrawn;
+    setModelsChildrenList();
+    setupKeyframeListener();
   }
 }
 
@@ -245,8 +319,8 @@ function setupFileListener() {
     }
 
     // for make default model with transformation
-    let rectangle_point = [
-    ]
+    let rectangle_point = [];
+
 
     for (let i = 0; i < state.modelInFocus.cubes.length; i++) {
       rectangle_point.push(transformedPosition[(108*i) + 0]); rectangle_point.push(transformedPosition[(108*i) + 1]); rectangle_point.push(transformedPosition[(108*i) + 2]);
@@ -258,6 +332,7 @@ function setupFileListener() {
       rectangle_point.push(transformedPosition[(108*i) + 30]); rectangle_point.push(transformedPosition[(108*i) + 31]); rectangle_point.push(transformedPosition[(108*i) + 32]);
       rectangle_point.push(transformedPosition[(108*i) + 21]); rectangle_point.push(transformedPosition[(108*i) + 22]); rectangle_point.push(transformedPosition[(108*i) + 23]);
       rectangle_point.push(transformedPosition[(108*i) + 18]); rectangle_point.push(transformedPosition[(108*i) + 19]); rectangle_point.push(transformedPosition[(108*i) + 20]);
+
     }
     let data = {
       name: state.modelInFocus.name,
@@ -684,6 +759,7 @@ function setupScaleListener() {
 
 function inFocusManipulationListener() {
   // translate
+
   let idNameInput = [
     "translateXInFocusInput", "translateYInFocusInput", "translateZInFocusInput",
     "rotateXInFocusInput", "rotateYInFocusInput", "rotateZInFocusInput",
@@ -696,49 +772,63 @@ function inFocusManipulationListener() {
   ];
   for (let i = 0; i < 3; i++) {
     let elmtInput = document.querySelector("#" + idNameInput[i]);
+    let elmtValue = document.querySelector("#" + idNameLabel[i]);
+
     elmtInput.min = -(Math.round(cs.width / 1000) * 1000) / 4;
     elmtInput.max = (Math.round(cs.width / 1000) * 1000) / 4;
+
+    // set current value and text
+    elmtInput.value = state.modelInFocus.translation[i];
+    elmtValue.textContent = state.modelInFocus.translation[i];
+
     elmtInput.addEventListener("input", (e) => {
       // parse the value to float
       state.modelInFocus.translation[i] = parseFloat(e.target.value);
-      let elmtValue = document.querySelector("#" + idNameLabel[i]);
       elmtValue.textContent = e.target.value;
       elmtInput.value = e.target.value;
       state.modelBeingDrawn.updateModelBeingDrawnFully();
     });
   }
 
+  // rotate
   for (let i = 0; i < 3; i++) {
     let elmtInput = document.querySelector("#" + idNameInput[i + 3]);
+    let elmtValue = document.querySelector("#" + idNameLabel[i + 3]);
+
     elmtInput.min = -360;
     elmtInput.max = 360;
+    // set current value and text
+    elmtInput.value = radToDeg(state.modelInFocus.rotation[i]);
+    elmtValue.textContent = radToDeg(state.modelInFocus.rotation[i]);
     elmtInput.addEventListener("input", (e) => {
       // parse the value to float
       state.modelInFocus.rotation[i] = degToRad(parseFloat(e.target.value));
-      let elmtValue = document.querySelector("#" + idNameLabel[i + 3]);
       elmtValue.textContent = e.target.value;
       elmtInput.value = e.target.value;
       state.modelBeingDrawn.updateModelBeingDrawnFully();
     });
   }
-  
+
+  // scale
   for (let i = 0; i < 3; i++) {
     let elmtInput = document.querySelector("#" + idNameInput[i + 6]);
+    let elmtValue = document.querySelector("#" + idNameLabel[i + 6]);
+
     elmtInput.min = 0;
     elmtInput.max = 3;
+    // set current value and text
+    elmtInput.value = state.modelInFocus.scale[i];
+    elmtValue.textContent = state.modelInFocus.scale[i];
+
     elmtInput.addEventListener("input", (e) => {
       // parse the value to float
       state.modelInFocus.scale[i] = parseFloat(e.target.value);
-      let elmtValue = document.querySelector("#" + idNameLabel[i + 6]);
       elmtValue.textContent = e.target.value;
       elmtInput.value = e.target.value;
       state.modelBeingDrawn.updateModelBeingDrawnFully();
     });
   }
 
-
-  // TODO: rotation
-  // TODO: scale
 }
 
 function setupCameraListener() {
