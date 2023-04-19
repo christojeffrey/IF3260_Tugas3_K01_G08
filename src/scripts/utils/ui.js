@@ -29,6 +29,7 @@ function setupUI(gl) {
   let camera = { radius: 10, angle: degToRad(0) };
   let shading = true;
   let animate = false;
+  let isKeyframePlaying = false;
 
   defaultState = {
     modelBeingDrawn,
@@ -42,6 +43,7 @@ function setupUI(gl) {
     camera,
     shading,
     animate,
+    isKeyframePlaying,
   };
 
   // set state as the default state
@@ -87,7 +89,40 @@ function setupKeyframeListener() {
   maxFrameCountElmt.textContent = `/${maxModelFrame}`;
   // #play-animation button
   let playAnimationButton = document.querySelector("#play-animation");
-  playAnimationButton.addEventListener("click", () => {});
+  playAnimationButton.addEventListener("click", () => {
+    // change text
+    if (state.isKeyframePlaying) {
+      playAnimationButton.textContent = "Play";
+      state.isKeyframePlaying = false;
+      // set current frame count to 0
+      let currentFrameCountElmt = document.querySelector("#current-frame-count");
+      currentFrameCountElmt.value = 0;
+    } else {
+      playAnimationButton.textContent = "Pause";
+      state.isKeyframePlaying = true;
+      // call model updateModelBeingDrawnAtFrame every second until the frame count is equal to the max frame count. then change text
+      let currentFrameCountElmt = document.querySelector("#current-frame-count");
+      let currentFrameCount = parseInt(currentFrameCountElmt.value);
+
+      let interval = setInterval(() => {
+        if (currentFrameCount < maxModelFrame) {
+          currentFrameCount++;
+          currentFrameCountElmt.value = currentFrameCount;
+          state.modelBeingDrawn.updateModelBeingDrawnAtFrame(currentFrameCount);
+          // NaN problem
+          // state.modelBeingDrawn.updateModelBeingDrawnFully();
+        } else {
+          // stop interval
+          clearInterval(interval);
+          // change text
+          playAnimationButton.textContent = "Play";
+          state.isKeyframePlaying = false;
+          // set current frame count to 0
+          currentFrameCountElmt.value = 0;
+        }
+      }, 1000);
+    }
+  });
   // #reset-animation button
 }
 function setupModelList() {

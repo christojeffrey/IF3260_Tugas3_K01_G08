@@ -15,4 +15,14 @@ export class Keyframe {
   setScale(scale) {
     this.scale = scale;
   }
+  // getter
+  getTranslation() {
+    return this.translation;
+  }
+  getRotation() {
+    return this.rotation;
+  }
+  getScale() {
+    return this.scale;
+  }
 }
