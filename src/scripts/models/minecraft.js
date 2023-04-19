@@ -3,7 +3,7 @@ import { Model } from "./base/model.js";
 import { Cube } from "./base/cube.js";
 import { Keyframe } from "./base/keyframe.js";
 
-let minecraft = new Model("elbow");
+let minecraft = new Model("minecraft");
 
 // Head
 let head = new Model("head");

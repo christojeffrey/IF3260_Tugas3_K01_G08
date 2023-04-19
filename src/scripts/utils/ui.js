@@ -21,7 +21,6 @@ function setupUI(gl) {
 
   let modelInFocus = modelBeingDrawn;
 
-  console.log("modelInFocus", modelBeingDrawn.children.firstArm);
   //modelInFocus.anchor = modelInFocus.anchor || [0, 0, 0];
 
   // console.log("modelInFocus", modelInFocus);
@@ -167,12 +166,6 @@ function setupKeyframeListener() {
 }
 function setupModelList() {
   // id:model-list
-  {
-    /* <div style="padding-left: 1.7rem">
-  <input type="radio" id="tessaract" name="model" value="tessaract" />
-  <label for="tessaract">Tessaract</label>
-</div> */
-  }
   let modelListElmt = document.querySelector("#model-list");
   let modelList = Object.keys(modelListAsObject);
   modelList.forEach((model) => {
@@ -183,7 +176,8 @@ function setupModelList() {
     inputElmt.id = model;
     inputElmt.name = "model";
     inputElmt.value = model;
-    inputElmt.checked = model === defaultState.modelInFocus.name;
+    console.log("model", model);
+    inputElmt.checked = model === defaultState.modelBeingDrawn.name;
     let labelElmt = document.createElement("label");
     labelElmt.htmlFor = model;
     labelElmt.innerText = model;
@@ -200,6 +194,8 @@ function setModelsChildrenList() {
   let modelElmt = document.createElement("div");
   modelElmt.id = "model-in-focus";
   modelElmt.innerText = state.modelBeingDrawn.name;
+  // clear it first
+  modelsChildrenElmt.innerHTML = "";
   modelsChildrenElmt.appendChild(modelElmt);
 
   //call addChildrenButtonRecursively
@@ -222,6 +218,8 @@ function addChildrenButtonRecursively(leftMargin, child, modelsChildrenElmt) {
     let modelElmt = document.querySelector("#model-in-focus");
     modelElmt.innerText = child.name;
     state.modelInFocus = child;
+    // update model being drawn slider
+    inFocusManipulationListener();
   });
   childElmt.appendChild(buttonElmt);
   modelsChildrenElmt.appendChild(childElmt);
@@ -243,12 +241,14 @@ function setupModelListener() {
 
   function updateModel(e) {
     let model = e.target.value;
-    state.modelInFocus.name = model;
-    state.modelInFocus.position = modelListAsObject[model].position;
-    state.modelInFocus.color = modelListAsObject[model].color;
-    state.modelInFocus.normal = modelListAsObject[model].normal;
-    state.modelInFocus.anchor = modelListAsObject[model].anchor;
-    state.totalVertices = state.modelInFocus.position.length / 3;
+    state.modelBeingDrawn = modelListAsObject[model];
+    state.modelInFocus = state.modelBeingDrawn;
+    setModelsChildrenList();
+    // state.modelInFocus.position = modelListAsObject[model].position;
+    // state.modelInFocus.color = modelListAsObject[model].color;
+    // state.modelInFocus.normal = modelListAsObject[model].normal;
+    // state.modelInFocus.anchor = modelListAsObject[model].anchor;
+    // state.totalVertices = state.modelInFocus.position.length / 3;
   }
 }
 
@@ -779,12 +779,18 @@ function inFocusManipulationListener() {
   let idNameLabel = ["translateXInFocusValue", "translateYInFocusValue", "translateZInFocusValue", "rotateXInFocusValue", "rotateYInFocusValue", "rotateZInFocusValue", "scaleXInFocusValue", "scaleYInFocusValue", "scaleZInFocusValue"];
   for (let i = 0; i < 3; i++) {
     let elmtInput = document.querySelector("#" + idNameInput[i]);
+    let elmtValue = document.querySelector("#" + idNameLabel[i]);
+
     elmtInput.min = -(Math.round(cs.width / 1000) * 1000) / 4;
     elmtInput.max = (Math.round(cs.width / 1000) * 1000) / 4;
+
+    // set current value and text
+    elmtInput.value = state.modelInFocus.translation[i];
+    elmtValue.textContent = state.modelInFocus.translation[i];
+
     elmtInput.addEventListener("input", (e) => {
       // parse the value to float
       state.modelInFocus.translation[i] = parseFloat(e.target.value);
-      let elmtValue = document.querySelector("#" + idNameLabel[i]);
       elmtValue.textContent = e.target.value;
       elmtInput.value = e.target.value;
       state.modelBeingDrawn.updateModelBeingDrawnFully();
@@ -794,12 +800,16 @@ function inFocusManipulationListener() {
   // rotate
   for (let i = 0; i < 3; i++) {
     let elmtInput = document.querySelector("#" + idNameInput[i + 3]);
+    let elmtValue = document.querySelector("#" + idNameLabel[i + 3]);
+
     elmtInput.min = -360;
     elmtInput.max = 360;
+    // set current value and text
+    elmtInput.value = radToDeg(state.modelInFocus.rotation[i]);
+    elmtValue.textContent = radToDeg(state.modelInFocus.rotation[i]);
     elmtInput.addEventListener("input", (e) => {
       // parse the value to float
       state.modelInFocus.rotation[i] = degToRad(parseFloat(e.target.value));
-      let elmtValue = document.querySelector("#" + idNameLabel[i + 3]);
       elmtValue.textContent = e.target.value;
       elmtInput.value = e.target.value;
       state.modelBeingDrawn.updateModelBeingDrawnFully();
@@ -808,12 +818,17 @@ function inFocusManipulationListener() {
   // scale
   for (let i = 0; i < 3; i++) {
     let elmtInput = document.querySelector("#" + idNameInput[i + 6]);
+    let elmtValue = document.querySelector("#" + idNameLabel[i + 6]);
+
     elmtInput.min = 0;
     elmtInput.max = 3;
+    // set current value and text
+    elmtInput.value = state.modelInFocus.scale[i];
+    elmtValue.textContent = state.modelInFocus.scale[i];
+
     elmtInput.addEventListener("input", (e) => {
       // parse the value to float
       state.modelInFocus.scale[i] = parseFloat(e.target.value);
-      let elmtValue = document.querySelector("#" + idNameLabel[i + 6]);
       elmtValue.textContent = e.target.value;
       elmtInput.value = e.target.value;
       state.modelBeingDrawn.updateModelBeingDrawnFully();

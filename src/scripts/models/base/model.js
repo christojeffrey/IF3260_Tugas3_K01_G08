@@ -239,7 +239,6 @@ export class Model {
       let timeDifference = afterKeyframe.end - beforeKeyframe.end;
       let timeElapsed = frame - beforeKeyframe.end;
       let timeRatio = timeElapsed / timeDifference;
-      console.log(translation[0], afterTranslation[0], timeRatio);
       translation = [translation[0] + (afterTranslation[0] - translation[0]) * timeRatio, translation[1] + (afterTranslation[1] - translation[1]) * timeRatio, translation[2] + (afterTranslation[2] - translation[2]) * timeRatio];
     }
     this.translation = translation;
