@@ -95,6 +95,17 @@ function setupUI(gl) {
 }
 function setupKeyframeListener() {
   // input: #current-frame-count
+  let currentFrameCountElmt = document.querySelector("#current-frame-count");
+  // set to 0
+  currentFrameCountElmt.value = 0;
+  // change event
+  currentFrameCountElmt.addEventListener("change", () => {
+    // get value
+    let currentFrameCount = parseInt(currentFrameCountElmt.value);
+    // update model
+    state.modelBeingDrawn.updateModelBeingDrawnAtFrame(currentFrameCount);
+    state.modelBeingDrawn.updateModelBeingDrawnFully();
+  });
   // #max-frame-count text
   // set based on the current model being drawn
   let maxFrameCountElmt = document.querySelector("#max-frame-count");
@@ -108,9 +119,6 @@ function setupKeyframeListener() {
     if (state.isKeyframePlaying) {
       playAnimationButton.textContent = "Play";
       state.isKeyframePlaying = false;
-      // set current frame count to 0
-      let currentFrameCountElmt = document.querySelector("#current-frame-count");
-      currentFrameCountElmt.value = 0;
     } else {
       playAnimationButton.textContent = "Pause";
       state.isKeyframePlaying = true;
@@ -119,20 +127,27 @@ function setupKeyframeListener() {
       let currentFrameCount = parseInt(currentFrameCountElmt.value);
 
       let interval = setInterval(() => {
-        if (currentFrameCount < maxModelFrame && state.isKeyframePlaying) {
-          currentFrameCount++;
-          currentFrameCountElmt.value = currentFrameCount;
-          state.modelBeingDrawn.updateModelBeingDrawnAtFrame(currentFrameCount);
-          // NaN problem
-          state.modelBeingDrawn.updateModelBeingDrawnFully();
+        if (state.isKeyframePlaying) {
+          if (currentFrameCount < maxModelFrame) {
+            currentFrameCount++;
+            currentFrameCountElmt.value = currentFrameCount;
+            state.modelBeingDrawn.updateModelBeingDrawnAtFrame(currentFrameCount);
+            state.modelBeingDrawn.updateModelBeingDrawnFully();
+          } else {
+            // stop interval
+            clearInterval(interval);
+            // change text
+            playAnimationButton.textContent = "Play";
+            state.isKeyframePlaying = false;
+            currentFrameCountElmt.value = 0;
+            state.modelBeingDrawn.updateModelBeingDrawnAtFrame(0);
+            state.modelBeingDrawn.updateModelBeingDrawnFully();
+          }
         } else {
-          // stop interval
-          clearInterval(interval);
-          // change text
           playAnimationButton.textContent = "Play";
           state.isKeyframePlaying = false;
-          // set current frame count to 0
-          currentFrameCountElmt.value = 0;
+          // stop interval
+          clearInterval(interval);
         }
       }, 1000);
     }
@@ -140,7 +155,6 @@ function setupKeyframeListener() {
   // #reset-animation button
   let resetAnimationButton = document.querySelector("#reset-animation");
   resetAnimationButton.addEventListener("click", () => {
-    // set current frame count to 0
     let currentFrameCountElmt = document.querySelector("#current-frame-count");
     currentFrameCountElmt.value = 0;
     // change text
@@ -148,6 +162,7 @@ function setupKeyframeListener() {
     state.isKeyframePlaying = false;
     // update model being drawn
     state.modelBeingDrawn.updateModelBeingDrawnAtFrame(0);
+    state.modelBeingDrawn.updateModelBeingDrawnFully();
   });
 }
 function setupModelList() {
