@@ -3,6 +3,8 @@ import { cs } from "../constant/cs.js";
 import { v3 } from "../math/v3.js";
 import { m4 } from "../math/m4.js";
 
+import { Model } from "../models/base/model.js";
+
 import { minecraft, elbow, wolf, horse, hand } from "../models/index.js";
 import { KEYFRAME_DURATION } from "../constant/keyframeduration.js";
 import { createTexture } from "../webgl/texture.js";
@@ -130,7 +132,6 @@ function setupKeyframeListener() {
     let currentFrameCountElmt = document.querySelector("#current-frame-count");
     console.log("state.isKeyframePlaying", state.isKeyframePlaying);
     let interval = setInterval(() => {
-      console.error("interval", state.isKeyframePlaying);
       if (state.isKeyframePlaying) {
         // if playing, update frame count
         if (parseInt(currentFrameCountElmt.value) < maxModelFrame) {
@@ -271,182 +272,36 @@ function setupFileListener() {
   exportElmt.addEventListener("click", exportData);
 
   function importData() {
-    // based on spec, seems like we should turn this off. canvas won't be reseted on import
-
-    function importChildData(model) {
-
-      let child = {
-        name: model.name,
-        position: model.position,
-        color: model.color,
-        normal: [],
-        anchor: [],
-        children: [],
-        translation: model.translation,
-        rotation: model.rotation,
-        scale: model.scale,
-      };
-      for (let i = 0; i < model.position.length; i += 9) {
-        let vec1 = v3.create(model.position[i + 3] - model.position[i], model.position[i + 4] - model.position[i + 1], model.position[i + 5] - model.position[i + 2]);
-        let vec2 = v3.create(model.position[i + 6] - model.position[i], model.position[i + 7] - model.position[i + 1], model.position[i + 8] - model.position[i + 2]);
-        let normal = v3.cross(vec2, vec1);
-        v3.normalize(normal, normal);
-        child.normal = [...child.normal, ...normal, ...normal, ...normal];
-      }
-
-      let maxX = Math.max(...model.position.filter((_, i) => i % 3 === 0));
-      let minX = Math.min(...model.position.filter((_, i) => i % 3 === 0));
-      let maxY = Math.max(...model.position.filter((_, i) => i % 3 === 1));
-      let minY = Math.min(...model.position.filter((_, i) => i % 3 === 1));
-      let maxZ = Math.max(...model.position.filter((_, i) => i % 3 === 2));
-      let minZ = Math.min(...model.position.filter((_, i) => i % 3 === 2));
-      child.anchor = [(maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2];
-
-      
-      console.log("ABSHDBJJS",state)
-      if (state){
-        console.log("BAR")
-        let childcount = 0;
-        for (let [key, value] of Object.entries(state)){
-          let childData = importChildData(model.children[childcount], value.children);
-          value.name = childData.name;
-          value.position = childData.position;
-          value.color = childData.color;
-          value.normal = childData.normal;
-          value.anchor = childData.anchor;
-          value.translation = childData.translation;
-          value.rotation = childData.rotation;
-          value.scale = childData.scale;
-          childcount++;
-        }
-      }
-      return child;
-    }
     let file = this.files[0];
     let reader = new FileReader();
+
     reader.onload = function (e) {
       let data = JSON.parse(e.target.result);
       let modelElmt = document.querySelectorAll(`input[name=${data.name}]`);
       modelElmt.checked = true;
       // Pass data to defaultState
-      console.log("data", data);
-      defaultState.modelInFocus.name = data.name;
-      defaultState.modelInFocus.position = data.position;
-      defaultState.modelInFocus.color = data.color;
+      let model = new Model();
+      model.import(data);
 
-      defaultState.modelInFocus.normal = [];
+      defaultState.modelBeingDrawn = model;
+      defaultState.modelInFocus = model;
 
-      for (let i = 0; i < data.position.length; i += 9) {
-        let vec1 = v3.create(data.position[i + 3] - data.position[i], data.position[i + 4] - data.position[i + 1], data.position[i + 5] - data.position[i + 2]);
-        let vec2 = v3.create(data.position[i + 6] - data.position[i], data.position[i + 7] - data.position[i + 1], data.position[i + 8] - data.position[i + 2]);
-        let normal = v3.cross(vec2, vec1);
-        v3.normalize(normal, normal);
-        defaultState.modelInFocus.normal = [...defaultState.modelInFocus.normal, ...normal, ...normal, ...normal];
-      }
+      state.modelBeingDrawn = model;
+      state.modelInFocus = model;
 
-      let maxX = Math.max(...data.position.filter((_, i) => i % 3 === 0));
-      let minX = Math.min(...data.position.filter((_, i) => i % 3 === 0));
-      let maxY = Math.max(...data.position.filter((_, i) => i % 3 === 1));
-      let minY = Math.min(...data.position.filter((_, i) => i % 3 === 1));
-      let maxZ = Math.max(...data.position.filter((_, i) => i % 3 === 2));
-      let minZ = Math.min(...data.position.filter((_, i) => i % 3 === 2));
-      defaultState.modelInFocus.anchor = [(maxX + minX) / 2, data.name === "pyramid" ? (maxY + minY) / 2 : (maxY + minY) / 2, (maxZ + minZ) / 2];
-
-      defaultState.totalVertices = defaultState.modelInFocus.position.length / 3;
-
-
-      console.log(defaultState.modelInFocus.children)
-      let childcount = 0;
-      for (let [key, value] of Object.entries(defaultState.modelInFocus.children)){
-        console.log(key,data.children)
-        let childData = importChildData(data.children[childcount], value.children);
-        value.name = childData.name;
-        value.position = childData.position;
-        value.color = childData.color;
-        value.normal = childData.normal;
-        value.anchor = childData.anchor;
-        value.translation = childData.translation;
-        value.rotation = childData.rotation;
-        value.scale = childData.scale;
-        childcount++;
-      }
-
-      defaultState.modelBeingDrawn = defaultState.modelInFocus;
-      state.modelInFocus.name = defaultState.modelInFocus.name;
-      state.modelInFocus.position = defaultState.modelInFocus.position;
-      console.log("modelinfocus", defaultState.modelInFocus)
-      state.modelInFocus.color = defaultState.modelInFocus.color;
-      state.modelInFocus.normal = defaultState.modelInFocus.normal;
-      state.modelInFocus.anchor = defaultState.modelInFocus.anchor;
-      state.totalVertices = defaultState.totalVertices;
-      state.modelBeingDrawn = state.modelInFocus;
-      console.log("modelbeingdrawn", state.modelBeingDrawn);
+      setModelsChildrenList();
+      inFocusManipulationListener();
+      setupKeyframeListener();
     };
+
     reader.readAsText(file);
 
     let customFileUploadElmt = document.querySelector(".custom-file-upload");
     customFileUploadElmt.innerHTML = file.name;
-    inFocusManipulationListener();
   }
 
   function exportData() {
-    // Define recursive function
-    function exportChildData(child) {
-      let transformChildPosition = [];
-      for (let i = 0; i < child.position.length; i += 3) {
-        let vec = v3.create(child.position[i], child.position[i + 1], child.position[i + 2]);
-        let transformedVec = m4.multiplyWithV3(m4.transform(state.translation, state.rotation, state.scale, child.anchor), vec);
-        transformedVec = transformedVec.slice(0, 3);
-        transformChildPosition = [...transformChildPosition, Math.round(transformedVec[0]), Math.round(transformedVec[1]), Math.round(transformedVec[2])];
-      }
-
-      let childData = {
-        name: child.name,
-        position: transformChildPosition,
-        color: child.color,
-        translation : child.translation,
-        rotation : child.rotation,
-        scale : child.scale,
-      };
-
-      if (child.children) {
-        let children = [];
-        for (var [key, value] of Object.entries(child.children)) {
-          console.log(value)
-          children.push(exportChildData(value));
-        }
-        childData.children = children;
-      }
-
-      return childData;
-    }
-
-    // Transform position of parent
-    let transformedPosition = [];
-    for (let i = 0; i < state.modelInFocusParent.position.length; i += 3) {
-      let vec = v3.create(state.modelInFocusParent.position[i], state.modelInFocusParent.position[i + 1], state.modelInFocusParent.position[i + 2]);
-      let transformedVec = m4.multiplyWithV3(m4.transform(state.translation, state.rotation, state.scale, state.modelInFocusParent.anchor), vec);
-      transformedVec = transformedVec.slice(0, 3);
-      transformedPosition = [...transformedPosition, Math.round(transformedVec[0]), Math.round(transformedVec[1]), Math.round(transformedVec[2])];
-    }
-
-    // Build child array of parent
-    let child = [];
-    for (var [key, value] of Object.entries(state.modelInFocusParent.children)) {
-      console.log(key, value)
-      child.push(exportChildData(value));
-    }
-
-    // Build data object
-    let data = {
-      name: state.modelInFocusParent.name,
-      position: transformedPosition,
-      color: state.modelInFocusParent.color,
-      translation : state.modelInFocusParent.translation,
-      rotation : state.modelInFocusParent.rotation,
-      scale : state.modelInFocusParent.scale,
-      children: child,
-    };
+    let data = state.modelBeingDrawn.export();
 
     // Save data to file
     let json = JSON.stringify(data);
@@ -840,7 +695,7 @@ function setupScaleListener() {
 function inFocusManipulationListener() {
   // translate
 
-  console.log(state.modelBeingDrawn)
+  console.log(state.modelBeingDrawn);
   let idNameInput = ["translateXInFocusInput", "translateYInFocusInput", "translateZInFocusInput", "rotateXInFocusInput", "rotateYInFocusInput", "rotateZInFocusInput", "scaleXInFocusInput", "scaleYInFocusInput", "scaleZInFocusInput"];
   let idNameLabel = ["translateXInFocusValue", "translateYInFocusValue", "translateZInFocusValue", "rotateXInFocusValue", "rotateYInFocusValue", "rotateZInFocusValue", "scaleXInFocusValue", "scaleYInFocusValue", "scaleZInFocusValue"];
   for (let i = 0; i < 3; i++) {
@@ -859,7 +714,7 @@ function inFocusManipulationListener() {
       state.modelInFocus.translation[i] = parseFloat(e.target.value);
       elmtValue.textContent = e.target.value;
       elmtInput.value = e.target.value;
-      console.log("update model in focus")
+      console.log("update model in focus");
       state.modelBeingDrawn.updateModelBeingDrawnFully();
     });
   }

@@ -23,7 +23,6 @@ export class Cube {
   createRectangles() {
     // add 8 points
     if (this.points.length == 8) {
-
       this.rectangles = [];
       this.rectangles.push(new Rectangle(this.points[0], this.points[1], this.points[2], this.points[3]));
       this.rectangles.push(new Rectangle(this.points[7], this.points[6], this.points[5], this.points[4]));
@@ -63,6 +62,25 @@ export class Cube {
     } else {
       console.log("Error: Not enough information to create cube");
     }
+  }
 
+  export() {
+    // return exported  points
+    let tempPoints = [];
+    for (let i = 0; i < this.points.length; i++) {
+      tempPoints.push(...this.points[i].export());
+    }
+    return tempPoints;
+  }
+  import(pointsSpread) {
+    console.error("importing cube", pointsSpread.length);
+    // import points
+    this.points = [];
+    for (let i = 0; i < pointsSpread.length / 3; i++) {
+      this.points.push(new Point(pointsSpread[i * 3], pointsSpread[i * 3 + 1], pointsSpread[i * 3 + 2]));
+    }
+
+    console.error("importing cube", this.points.length);
+    this.createRectangles();
   }
 }
