@@ -132,7 +132,6 @@ function setupKeyframeListener() {
     let currentFrameCountElmt = document.querySelector("#current-frame-count");
     console.log("state.isKeyframePlaying", state.isKeyframePlaying);
     let interval = setInterval(() => {
-      console.error("interval", state.isKeyframePlaying);
       if (state.isKeyframePlaying) {
         // if playing, update frame count
         if (parseInt(currentFrameCountElmt.value) < maxModelFrame) {
@@ -290,7 +289,6 @@ function setupFileListener() {
       state.modelBeingDrawn = model;
       state.modelInFocus = model;
 
-      console.error("state.modelBeingDrawn", state.modelBeingDrawn);
       setModelsChildrenList();
       inFocusManipulationListener();
       setupKeyframeListener();
