@@ -30,7 +30,7 @@ export class Model {
       // mode: "image",
       mode: "bumpmap",
       coordinate: [],
-    }
+    };
 
     this.keyframes = [];
 
@@ -84,7 +84,7 @@ export class Model {
           console.log("vec1", vec1);
           console.log("vec2", vec2);
           console.log("normal", normal);
-          
+
           this.normal = [...this.normal, ...normal, ...normal, ...normal];
           this.tangent = [...this.tangent, ...vec2, ...vec2, ...vec2];
           this.bitangent = [...this.bitangent, ...vec1, ...vec1, ...vec1];
@@ -93,14 +93,7 @@ export class Model {
           this.color = [...this.color, ...primaryColors[j % primaryColors.length]];
         }
         this.position = [...this.position, ...positions];
-        this.texture.coordinate = this.texture.coordinate.concat([
-          0   , 0  ,
-          0   , 1.0,
-          1.0 , 0  ,
-          0   , 1.0,
-          1.0 , 1.0,
-          1.0 , 0  ,
-        ]);
+        this.texture.coordinate = this.texture.coordinate.concat([0, 0, 0, 1.0, 1.0, 0, 0, 1.0, 1.0, 1.0, 1.0, 0]);
       }
     }
   }
@@ -155,7 +148,6 @@ export class Model {
     this.position = newPositions;
     this.normal = newNormals;
   }
-
 
   getMaxFrameCount() {
     // recursively get the max animation time
@@ -251,6 +243,18 @@ export class Model {
     let childrenKeys = Object.keys(this.children);
     childrenKeys.forEach((key) => {
       this.children[key].updateModelBeingDrawnAtFrame(frame);
+    });
+  }
+
+  resetWholeModelManipulation() {
+    this.translation = [0, 0, 0];
+    this.rotation = [0, 0, 0];
+    this.scale = [1, 1, 1];
+
+    // reset children
+    let childrenKeys = Object.keys(this.children);
+    childrenKeys.forEach((key) => {
+      this.children[key].resetWholeModelManipulation();
     });
   }
 }

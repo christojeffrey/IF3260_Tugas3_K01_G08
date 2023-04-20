@@ -425,30 +425,13 @@ function setupCanvasListener() {
 }
 
 function resetCanvas() {
-  state.modelInFocus = {
-    name: defaultState.modelInFocus.name,
-    position: defaultState.modelInFocus.position,
-    color: defaultState.modelInFocus.color,
-    normal: defaultState.modelInFocus.normal,
-    texture: {
-      mode: defaultState.modelInFocus.texture.mode,
-      coordinate: defaultState.modelInFocus.texture.coordinate,
-    },
-    anchor: defaultState.modelInFocus.anchor,
-  };
-  state.totalVertices = defaultState.totalVertices;
-  state.projection = defaultState.projection;
-  state.obliqueAngle = defaultState.obliqueAngle;
-  state.perspectiveFoV = defaultState.perspectiveFoV;
-  state.rotation = [...defaultState.rotation];
-  state.translation = [...defaultState.translation];
-  state.scale = [...defaultState.scale];
-  state.camera = {
-    radius: defaultState.camera.radius,
-    angle: defaultState.camera.angle,
-  };
-  state.shading = defaultState.shading;
-  state.animate = defaultState.animate;
+  state.modelBeingDrawn.resetWholeModelManipulation();
+  state.modelBeingDrawn.updateModelBeingDrawnFully();
+  inFocusManipulationListener();
+
+  state.projection = "perspective";
+  state.obliqueAngle = 45;
+  state.perspectiveFoV = 90;
 
   state.rotation = [degToRad(0), degToRad(0), degToRad(0)];
   state.translation = [0, 0, 0];
