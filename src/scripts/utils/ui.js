@@ -23,6 +23,7 @@ function setupUI(gl) {
   let firstObjectKey = Object.keys(modelListAsObject)[0];
   let modelBeingDrawn = modelListAsObject[firstObjectKey];
   let modelInFocus = modelBeingDrawn;
+  let modelInFocusParent = modelBeingDrawn
 
   let projection = "perspective";
   let obliqueAngle = 45;
@@ -243,6 +244,9 @@ function setupModelListener(gl) {
     state.modelBeingDrawn = modelListAsObject[model];
 
     state.modelInFocus = state.modelBeingDrawn;
+
+    state.modelInFocusParent = state.modelBeingDrawn;
+    console.log("state.parent", state.modelInFocusParent);
     setModelsChildrenList();
     setupKeyframeListener();
     inFocusManipulationListener();
@@ -293,6 +297,34 @@ function setupFileListener() {
 
       defaultState.totalVertices = defaultState.modelInFocus.position.length / 3;
 
+      for ([key, value] of Object.entries(data.children)) {
+        let child = {
+          name: key,
+          position: value.position,
+          color: value.color,
+          normal: [],
+          anchor: [],
+          children: {},
+        };
+        for (let i = 0; i < value.position.length; i += 9) {
+          let vec1 = v3.create(value.position[i + 3] - value.position[i], value.position[i + 4] - value.position[i + 1], value.position[i + 5] - value.position[i + 2]);
+          let vec2 = v3.create(value.position[i + 6] - value.position[i], value.position[i + 7] - value.position[i + 1], value.position[i + 8] - value.position[i + 2]);
+          let normal = v3.cross(vec2, vec1);
+          v3.normalize(normal, normal);
+          child.normal = [...child.normal, ...normal, ...normal, ...normal];
+        }
+
+        let maxX = Math.max(...value.position.filter((_, i) => i % 3 === 0));
+        let minX = Math.min(...value.position.filter((_, i) => i % 3 === 0));
+        let maxY = Math.max(...value.position.filter((_, i) => i % 3 === 1));
+        let minY = Math.min(...value.position.filter((_, i) => i % 3 === 1));
+        let maxZ = Math.max(...value.position.filter((_, i) => i % 3 === 2));
+        let minZ = Math.min(...value.position.filter((_, i) => i % 3 === 2));
+        child.anchor = [(maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2];
+
+        defaultState.modelInFocus.children[key] = child;
+      }
+      defaultState.modelBeingDrawn = defaultState.modelInFocus;
       // set the imported file as the default state
       // Pass defaultState to state
       state.modelInFocus.name = defaultState.modelInFocus.name;
@@ -301,6 +333,9 @@ function setupFileListener() {
       state.modelInFocus.normal = defaultState.modelInFocus.normal;
       state.modelInFocus.anchor = defaultState.modelInFocus.anchor;
       state.totalVertices = defaultState.totalVertices;
+      state.modelInFocus.children = defaultState.modelInFocus.children;
+      
+      state.modelBeingDrawn = defaultState.modelBeingDrawn;
     };
     reader.readAsText(file);
 
@@ -312,18 +347,43 @@ function setupFileListener() {
     // Transform position
     setupModelListener();
     let transformedPosition = [];
-    for (let i = 0; i < state.modelInFocus.position.length; i += 3) {
-      let vec = v3.create(state.modelInFocus.position[i], state.modelInFocus.position[i + 1], state.modelInFocus.position[i + 2]);
-      console.log(state.modelInFocus.anchor);
-      let transformedVec = m4.multiplyWithV3(m4.transform(state.translation, state.rotation, state.scale, state.modelInFocus.anchor), vec);
+    var child = [];
+    for (let i = 0; i < state.modelInFocusParent.position.length; i += 3) {
+      let vec = v3.create(state.modelInFocusParent.position[i], state.modelInFocusParent.position[i + 1], state.modelInFocusParent.position[i + 2]);
+      // console.log(state.modelInFocusParent.anchor);
+      let transformedVec = m4.multiplyWithV3(m4.transform(state.translation, state.rotation, state.scale, state.modelInFocusParent.anchor), vec);
       transformedVec = transformedVec.slice(0, 3);
       transformedPosition = [...transformedPosition, Math.round(transformedVec[0]), Math.round(transformedVec[1]), Math.round(transformedVec[2])];
+    }
+
+    for (var [key, value] of Object.entries(state.modelInFocusParent.children)) {
+      console.log(`${key}: ${value}`);
+      console.log(value)
+      let transformChildPosition = [];
+      for (let i = 0; i < value.position.length; i += 3) {
+        let vec = v3.create(value.position[i], value.position[i + 1], value.position[i + 2]);
+        // console.log(state.modelInFocusParent.anchor);
+        let transformedVec = m4.multiplyWithV3(m4.transform(state.translation, state.rotation, state.scale, value.anchor), vec);
+        transformedVec = transformedVec.slice(0, 3);
+        transformChildPosition = [...transformChildPosition, Math.round(transformedVec[0]), Math.round(transformedVec[1]), Math.round(transformedVec[2])];
+      }
+      //push data to child
+      //recursively add children of children
+
+      
+      child.push({
+        name: value.name,
+        position: transformChildPosition,
+        color: value.color,
+        parent: state.modelInFocusParent.name,
+      });
     }
 
     let data = {
       name: state.modelInFocus.name,
       position: transformedPosition,
       color: state.modelInFocus.color,
+      children: child,
     };
 
     let json = JSON.stringify(data);
