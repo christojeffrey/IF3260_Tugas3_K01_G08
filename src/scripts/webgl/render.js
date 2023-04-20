@@ -6,7 +6,7 @@ import { createTexture } from "./texture.js";
 
 function renderScene(gl, program, state) {
   requestAnimationFrame(render);
-  createTexture(gl);
+  createTexture(gl, state);
   function render() {
     if (state.animate) {
       animate(state);
@@ -45,6 +45,7 @@ function drawScene(gl, program, buffers, state) {
   var useLightingLocation = gl.getUniformLocation(program, "u_useLighting");
   var textureModeLocation = gl.getUniformLocation(program, "u_textureMode");
   var textureImageLocation = gl.getUniformLocation(program, "u_textureImage");
+  var textureCustomImageLocation = gl.getUniformLocation(program, "u_textureCustomImage");
   var textureBumpMapLocation = gl.getUniformLocation(program, "u_textureBumpMap");
   var textureEnviromentLocation = gl.getUniformLocation(program, "u_textureEnvironment");
 
@@ -189,11 +190,13 @@ function drawScene(gl, program, buffers, state) {
   gl.uniform1i(textureImageLocation, 0);
   gl.uniform1i(textureBumpMapLocation, 1);
   gl.uniform1i(textureEnviromentLocation, 2);
+  gl.uniform1i(textureCustomImageLocation, 3);
 
   // Tell the shader to use texture unit 0 for textureImageLocation
   if (modelBeingDrawn.texture.mode == "image") gl.uniform1i(textureModeLocation, 0);
   else if (modelBeingDrawn.texture.mode == "bumpmap") gl.uniform1i(textureModeLocation, 1);
   else if (modelBeingDrawn.texture.mode == "environment") gl.uniform1i(textureModeLocation, 2);
+  else if (modelBeingDrawn.texture.mode == "custom") gl.uniform1i(textureModeLocation, 3);
   else gl.uniform1i(textureModeLocation, -1); 
 
 
