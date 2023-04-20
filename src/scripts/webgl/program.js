@@ -36,6 +36,7 @@ async function loadShader(gl, source, shaderType, opt_errorCallback) {
 }
 async function fetchShader(source) {
   const response = await fetch("./scripts/webgl/shaders/" + source);
+  console.log("response", response);
   return await response.text();
 }
 

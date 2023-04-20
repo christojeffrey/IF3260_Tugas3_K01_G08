@@ -6,5 +6,9 @@ function degToRad(d) {
     return (d * Math.PI) / 180;
 }
 
-export { degToRad, radToDeg};
+function isPowerOf2 (value) {
+    return (value & (value - 1)) == 0;
+}
+
+export { degToRad, radToDeg, isPowerOf2 };
 

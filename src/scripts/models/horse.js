@@ -138,6 +138,8 @@ tail.setCubes([
 tail.completeModelUsingCubes();
 horse.addChildren("tail", tail);
 
+console.log(tail);
+
 horse.updateModelBeingDrawnFully();
 
 export { horse };

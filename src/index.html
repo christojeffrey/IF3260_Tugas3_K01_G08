@@ -43,60 +43,21 @@
         <div style="text-align: center">
           <button id="help" class="button" style="margin-top: 4vh">Help</button>
         </div>
-        <!-- model's children -->
-        <div id="models-children"></div>
-        <!-- in focus manipulation -->
-        <div id="in-focus-manipulation">
-          <h3 id="title">Translate</h3>
-          <div style="padding-left: 2.2rem">
-            <label>X</label>
-            <input type="range" id="translateXInFocusInput" min="-100" max="100" value="0" />
-            <label id="translateXInFocusValue">0</label>
-          </div>
-          <div style="padding-left: 2.2rem">
-            <label>Y</label>
-            <input type="range" id="translateYInFocusInput" min="-100" max="100" value="0" />
-            <label id="translateYInFocusValue">0</label>
-          </div>
-          <div style="padding-left: 2.2rem">
-            <label>Z</label>
-            <input type="range" id="translateZInFocusInput" min="-100" max="100" value="0" />
-            <label id="translateZInFocusValue">0</label>
-          </div>
-          <!-- in focus rotate Selector -->
-          <h3 id="title">Rotate</h3>
-          <div style="padding-left: 2.2rem">
-            <label>X</label>
-            <input type="range" id="rotateXInFocusInput" min="-360" max="360" value="0" />
-            <label id="rotateXInFocusValue">0</label>
-          </div>
-          <div style="padding-left: 2.2rem">
-            <label>Y</label>
-            <input type="range" id="rotateYInFocusInput" min="-360" max="360" value="0" />
-            <label id="rotateYInFocusValue">0</label>
-          </div>
-          <div style="padding-left: 2.2rem">
-            <label>Z</label>
-            <input type="range" id="rotateZInFocusInput" min="-360" max="360" value="0" />
-            <label id="rotateZInFocusValue">0</label>
-          </div>
-          <!-- in focus scale Selector -->
-          <h3 id="title">Scale</h3>
-          <div style="padding-left: 2.2rem">
-            <label>X</label>
-            <input type="range" id="scaleXInFocusInput" min="0" max="3" value="1" step="0.1" />
-            <label id="scaleXInFocusValue">1</label>
-          </div>
-          <div style="padding-left: 2.2rem">
-            <label>Y</label>
-            <input type="range" id="scaleYInFocusInput" min="0" max="3" value="1" step="0.1" />
-            <label id="scaleYInFocusValue">1</label>
-          </div>
-          <div>
-            <label style="padding-left: 2.2rem">Z</label>
-            <input type="range" id="scaleZInFocusInput" min="0" max="3" value="1" step="0.1" />
-            <label id="scaleZInFocusValue">1</label>
-          </div>
+        <div>
+          <h3 id="title">Texture</h3>
+          <div style="padding-left: 1.7rem">
+            <input type="radio" id="image" name="texture" value="image" />
+            <label for="image">Image</label>
+          </div>         
+          <div style="padding-left: 1.7rem">
+            <input type="radio" id="bumpmap" name="texture" value="bumpmap" checked />
+            <label for="bumpmap">Bump Map</label>
+          </div>  
+          <div style="padding-left: 1.7rem">
+            <input type="radio" id="environment" name="texture" value="environment" />
+            <label for="environment">Environment</label>
+          </div>  
+
         </div>
       </div>
       <!-- middle part -->
@@ -117,93 +78,153 @@
       </div>
       <div id="right-bar">
         <!-- Projection Selector -->
-        <h3 id="title">Projection</h3>
-        <div style="padding-left: 1.7rem">
-          <input type="radio" id="orthographic" name="projection" value="orthographic" />
-          <label for="orthographic">Orthographic</label>
-        </div>
-        <div style="padding-left: 1.7rem">
-          <input type="radio" id="oblique" name="projection" value="oblique" />
-          <label for="radio">Oblique</label>
-        </div>
-        <div style="padding-left: 1.7rem">
-          <input type="radio" id="perspective" name="projection" value="perspective" checked />
-          <label for="perspective">Perspective</label>
-        </div>
-        <h3 id="title" name="projectionMenu">Orthographic</h3>
-        <div style="padding-left: 0.4rem; display: none" id="obliqueMenu">
-          <label>Angle</label>
-          <input type="range" id="obliqueAngle" min="30" max="75" value="45" />
-          <label id="obliqueAngleValue">45</label>
-        </div>
-        <div style="padding-left: 1rem; display: none" id="perspectiveMenu">
-          <label>FoV</label>
-          <input type="range" id="perspectiveFoV" min="30" max="150" value="90" />
-          <label id="perspectiveFoVValue">90</label>
-        </div>
-        <div id="space" style="height: 22px; text-align: center">Not Provide</div>
-        <!-- Translate Selector -->
-        <h3 id="title">Translate</h3>
-        <div style="padding-left: 2.2rem">
-          <label>X</label>
-          <input type="range" id="translateX" min="-100" max="100" value="0" />
-          <label id="translateXValue">0</label>
-        </div>
-        <div style="padding-left: 2.2rem">
-          <label>Y</label>
-          <input type="range" id="translateY" min="-100" max="100" value="0" />
-          <label id="translateYValue">0</label>
-        </div>
-        <div style="padding-left: 2.2rem">
-          <label>Z</label>
-          <input type="range" id="translateZ" min="-100" max="100" value="0" />
-          <label id="translateZValue">0</label>
-        </div>
-        <!-- Rotate Selector -->
-        <h3 id="title">Rotate</h3>
-        <div style="padding-left: 2.2rem">
-          <label>X</label>
-          <input type="range" id="rotateX" min="-360" max="360" value="0" />
-          <label id="rotateXValue">0</label>
-        </div>
-        <div style="padding-left: 2.2rem">
-          <label>Y</label>
-          <input type="range" id="rotateY" min="-360" max="360" value="0" />
-          <label id="rotateYValue">0</label>
-        </div>
-        <div style="padding-left: 2.2rem">
-          <label>Z</label>
-          <input type="range" id="rotateZ" min="-360" max="360" value="0" />
-          <label id="rotateZValue">0</label>
-        </div>
-        <!-- Scale Selector -->
-        <h3 id="title">Scale</h3>
-        <div style="padding-left: 2.2rem">
-          <label>X</label>
-          <input type="range" id="scaleX" min="0" max="3" value="1" step="0.1" />
-          <label id="scaleXValue">1</label>
-        </div>
-        <div style="padding-left: 2.2rem">
-          <label>Y</label>
-          <input type="range" id="scaleY" min="0" max="3" value="1" step="0.1" />
-          <label id="scaleYValue">1</label>
+        <div>
+          <h2>Object Controller</h2>
+          <h3 id="title">Projection</h3>
+          <div style="padding-left: 1.7rem">
+            <input type="radio" id="orthographic" name="projection" value="orthographic" />
+            <label for="orthographic">Orthographic</label>
+          </div>
+          <div style="padding-left: 1.7rem">
+            <input type="radio" id="oblique" name="projection" value="oblique" />
+            <label for="radio">Oblique</label>
+          </div>
+          <div style="padding-left: 1.7rem">
+            <input type="radio" id="perspective" name="projection" value="perspective" checked />
+            <label for="perspective">Perspective</label>
+          </div>
+          <h3 id="title" name="projectionMenu">Orthographic</h3>
+          <div style="padding-left: 0.4rem; display: none" id="obliqueMenu">
+            <label>Angle</label>
+            <input type="range" id="obliqueAngle" min="30" max="75" value="45" />
+            <label id="obliqueAngleValue">45</label>
+          </div>
+          <div style="padding-left: 1rem; display: none" id="perspectiveMenu">
+            <label>FoV</label>
+            <input type="range" id="perspectiveFoV" min="30" max="150" value="90" />
+            <label id="perspectiveFoVValue">90</label>
+          </div>
+          <div id="space" style="height: 22px; text-align: center">Not Provide</div>
+          <!-- Translate Selector -->
+          <h3 id="title">Translate</h3>
+          <div style="padding-left: 2.2rem">
+            <label>X</label>
+            <input type="range" id="translateX" min="-100" max="100" value="0" />
+            <label id="translateXValue">0</label>
+          </div>
+          <div style="padding-left: 2.2rem">
+            <label>Y</label>
+            <input type="range" id="translateY" min="-100" max="100" value="0" />
+            <label id="translateYValue">0</label>
+          </div>
+          <div style="padding-left: 2.2rem">
+            <label>Z</label>
+            <input type="range" id="translateZ" min="-100" max="100" value="0" />
+            <label id="translateZValue">0</label>
+          </div>
+          <!-- Rotate Selector -->
+          <h3 id="title">Rotate</h3>
+          <div style="padding-left: 2.2rem">
+            <label>X</label>
+            <input type="range" id="rotateX" min="-360" max="360" value="0" />
+            <label id="rotateXValue">0</label>
+          </div>
+          <div style="padding-left: 2.2rem">
+            <label>Y</label>
+            <input type="range" id="rotateY" min="-360" max="360" value="0" />
+            <label id="rotateYValue">0</label>
+          </div>
+          <div style="padding-left: 2.2rem">
+            <label>Z</label>
+            <input type="range" id="rotateZ" min="-360" max="360" value="0" />
+            <label id="rotateZValue">0</label>
+          </div>
+          <!-- Scale Selector -->
+          <h3 id="title">Scale</h3>
+          <div style="padding-left: 2.2rem">
+            <label>X</label>
+            <input type="range" id="scaleX" min="0" max="3" value="1" step="0.1" />
+            <label id="scaleXValue">1</label>
+          </div>
+          <div style="padding-left: 2.2rem">
+            <label>Y</label>
+            <input type="range" id="scaleY" min="0" max="3" value="1" step="0.1" />
+            <label id="scaleYValue">1</label>
+          </div>
+          <div>
+            <label style="padding-left: 2.2rem">Z</label>
+            <input type="range" id="scaleZ" min="0" max="3" value="1" step="0.1" />
+            <label id="scaleZValue">1</label>
+          </div>
+          <!-- Camera Selector -->
+          <h3 id="title">Camera</h3>
+          <div>
+            <label>Radius</label>
+            <input type="range" id="radius" min="10" max="100" value="10" />
+            <label id="radiusValue">10</label>
+          </div>
+          <div style="padding-left: 0.4rem">
+            <label>Angle</label>
+            <input type="range" id="angle" min="0" max="360" value="0" />
+            <label id="angleValue">0</label>
+          </div>
         </div>
         <div>
-          <label style="padding-left: 2.2rem">Z</label>
-          <input type="range" id="scaleZ" min="0" max="3" value="1" step="0.1" />
-          <label id="scaleZValue">1</label>
-        </div>
-        <!-- Camera Selector -->
-        <h3 id="title">Camera</h3>
-        <div>
-          <label>Radius</label>
-          <input type="range" id="radius" min="10" max="100" value="10" />
-          <label id="radiusValue">10</label>
-        </div>
-        <div style="padding-left: 0.4rem">
-          <label>Angle</label>
-          <input type="range" id="angle" min="0" max="360" value="0" />
-          <label id="angleValue">0</label>
+          <h2>Infokus Controller</h2>
+          <!-- in focus manipulation -->
+          <h3 id="title">Child Componnent</h3>
+          <div id="models-children"></div>
+          <div id="in-focus-manipulation">
+            <h3 id="title">Translate</h3>
+            <div style="padding-left: 2.2rem">
+              <label>X</label>
+              <input type="range" id="translateXInFocusInput" min="-100" max="100" value="0" />
+              <label id="translateXInFocusValue">0</label>
+            </div>
+            <div style="padding-left: 2.2rem">
+              <label>Y</label>
+              <input type="range" id="translateYInFocusInput" min="-100" max="100" value="0" />
+              <label id="translateYInFocusValue">0</label>
+            </div>
+            <div style="padding-left: 2.2rem">
+              <label>Z</label>
+              <input type="range" id="translateZInFocusInput" min="-100" max="100" value="0" />
+              <label id="translateZInFocusValue">0</label>
+            </div>
+            <!-- in focus rotate Selector -->
+            <h3 id="title">Rotate</h3>
+            <div style="padding-left: 2.2rem">
+              <label>X</label>
+              <input type="range" id="rotateXInFocusInput" min="-360" max="360" value="0" />
+              <label id="rotateXInFocusValue">0</label>
+            </div>
+            <div style="padding-left: 2.2rem">
+              <label>Y</label>
+              <input type="range" id="rotateYInFocusInput" min="-360" max="360" value="0" />
+              <label id="rotateYInFocusValue">0</label>
+            </div>
+            <div style="padding-left: 2.2rem">
+              <label>Z</label>
+              <input type="range" id="rotateZInFocusInput" min="-360" max="360" value="0" />
+              <label id="rotateZInFocusValue">0</label>
+            </div>
+            <!-- in focus scale Selector -->
+            <h3 id="title">Scale</h3>
+            <div style="padding-left: 2.2rem">
+              <label>X</label>
+              <input type="range" id="scaleXInFocusInput" min="0" max="3" value="1" step="0.1" />
+              <label id="scaleXInFocusValue">1</label>
+            </div>
+            <div style="padding-left: 2.2rem">
+              <label>Y</label>
+              <input type="range" id="scaleYInFocusInput" min="0" max="3" value="1" step="0.1" />
+              <label id="scaleYInFocusValue">1</label>
+            </div>
+            <div>
+              <label style="padding-left: 2.2rem">Z</label>
+              <input type="range" id="scaleZInFocusInput" min="0" max="3" value="1" step="0.1" />
+              <label id="scaleZInFocusValue">1</label>
+            </div>
         </div>
       </div>
     </div>

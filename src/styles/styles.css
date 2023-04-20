@@ -31,8 +31,10 @@ body {
 }
 
 #right-bar {
-  width: 18rem;
+  width: 40rem;
   border-left: 1px solid #000;
+  display: flex;
+  flex-direction: row;
 }
 
 #title {

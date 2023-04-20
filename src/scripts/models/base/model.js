@@ -23,6 +23,14 @@ export class Model {
     this.color = [];
     this.position = [];
     this.normal = [];
+    this.tangent = [];
+    this.bitangent = [];
+    this.texture = {
+      // mode: "environment",
+      // mode: "image",
+      mode: "bumpmap",
+      coordinate: [],
+    }
 
     this.keyframes = [];
 
@@ -36,26 +44,16 @@ export class Model {
     this.keyframes.push(keyframe);
   }
   addChildren(name, model) {
-    // console.log("add children for", this.name, name, model.scale);
     this.children[name] = model;
-
-    let position = [...this.position, ...model.position];
-
-    minX = Math.min(...position.filter((_, i) => i % 3 === 0));
-    maxX = Math.max(...position.filter((_, i) => i % 3 === 0));
-    minY = Math.min(...position.filter((_, i) => i % 3 === 1));
-    maxY = Math.max(...position.filter((_, i) => i % 3 === 1));
-    minZ = Math.min(...position.filter((_, i) => i % 3 === 2));
-    maxZ = Math.max(...position.filter((_, i) => i % 3 === 2));
-
-    this.anchor = [minX + (maxX - minX) / 2, minY + (maxY - minY) / 2, minZ + (maxZ - minZ) / 2];
   }
   setAnchor(anchor) {
     // console.log("name", this.name);
     // console.log("set anchor", anchor);
     this.anchor = anchor;
   }
-
+  setTextureMode(mode) {
+    this.texture.mode = mode;
+  }
   setCubes(cubes) {
     this.cubes = cubes;
   }
@@ -68,20 +66,41 @@ export class Model {
     this.position = [];
     this.color = [];
     this.normal = [];
+    this.texture.coordinate = [];
+    this.bitangent = [];
+    this.tangent = [];
     // set normal, color, position
     for (let i = 0; i < this.cubes.length; i++) {
       for (let j = 0; j < this.cubes[i].rectangles.length; j++) {
         let positions = this.cubes[i].rectangles[j].flattenToPoints();
+        console.log("positions", positions);
         for (let k = 0; k < positions.length; k += 3 * 3) {
           let vec1 = v3.create(positions[k + 3] - positions[k], positions[k + 4] - positions[k + 1], positions[k + 5] - positions[k + 2]);
-          let vec2 = v3.create(positions[k + 6] - positions[k + 3], positions[k + 7] - positions[k + 4], positions[k + 8] - positions[k + 5]);
+          let vec2 = v3.create(positions[k + 6] - positions[k], positions[k + 7] - positions[k + 1], positions[k + 8] - positions[k + 2]);
           let normal = v3.normalize(v3.cross(vec2, vec1));
+          // vec1 = v3.normalize(vec1);
+          // vec2 = v3.normalize(vec2);
+
+          console.log("vec1", vec1);
+          console.log("vec2", vec2);
+          console.log("normal", normal);
+          
           this.normal = [...this.normal, ...normal, ...normal, ...normal];
+          this.tangent = [...this.tangent, ...vec2, ...vec2, ...vec2];
+          this.bitangent = [...this.bitangent, ...vec1, ...vec1, ...vec1];
         }
         for (let k = 0; k < 6; k++) {
           this.color = [...this.color, ...primaryColors[j % primaryColors.length]];
         }
         this.position = [...this.position, ...positions];
+        this.texture.coordinate = this.texture.coordinate.concat([
+          0   , 0  ,
+          0   , 1.0,
+          1.0 , 0  ,
+          0   , 1.0,
+          1.0 , 1.0,
+          1.0 , 0  ,
+        ]);
       }
     }
   }
@@ -107,80 +126,34 @@ export class Model {
     // update position based on translation, rotation, scale and anchor
     // do this recursively for all children
     this.completeModelUsingCubes();
-    // console.log("name of this model", this.name);
-    // console.log(this.position);
-    // console.log("====================================");
-    // console.log("anchor", this.anchor);
 
     let childrenKeys = Object.keys(this.children);
     childrenKeys.forEach((key) => {
-      // console.log(key);
       this.children[key].updateModelBeingDrawnFully();
-      // console.log("this.children[childrenKeys[key]].position");
-      // console.log(this.children[key].position);
       this.position = [...this.position, ...this.children[key].position];
       this.color = [...this.color, ...this.children[key].color];
       this.normal = [...this.normal, ...this.children[key].normal];
-      // this.cubes = [...this.cubes, ...this.children[key].cubes];
+      this.texture.coordinate = [...this.texture.coordinate, ...this.children[key].texture.coordinate];
+      this.tangent = [...this.tangent, ...this.children[key].tangent];
+      this.bitangent = [...this.bitangent, ...this.children[key].bitangent];
     });
-    // console.log("done");
-    // console.log("====================================");
-    // console.log("this.position after");
-    // console.log(this.position);
-    // console.log("anchor", this.anchor);
-    // // update position based on translation, rotation, scale and anchor
+
     let newPositions = [];
     let newNormals = [];
     // group position by 3, then manipulate it
     for (let i = 0; i < this.position.length; i += 3) {
-      // console.log(this.position[i], this.position[i + 1], this.position[i + 2]);
-      // let vec = v3.create(this.position[i], this.position[i + 1], this.position[i + 2]);
-      // let transformedPoint = m4.multiplyWithV3(m4.transform(this.translation, this.rotation, this.scale, this.anchor), vec).slice(0, 3);
+      let vec = v3.create(this.position[i], this.position[i + 1], this.position[i + 2]);
+      let transformedPoint = m4.multiplyWithV3(m4.transform(this.translation, this.rotation, this.scale, this.anchor), vec).slice(0, 3);
 
-      // let vecNormal = v3.create(this.normal[i], this.normal[i + 1], this.normal[i + 2]);
-      // let transformedNormal = m4.multiplyWithV3(m4.rotation(this.rotation[0], this.rotation[1], this.rotation[2]), vecNormal).slice(0, 3);
-      // transformedNormal = [Math.round(transformedNormal[0]), Math.round(transformedNormal[1]), Math.round(transformedNormal[2])];
+      let vecNormal = v3.create(this.normal[i], this.normal[i + 1], this.normal[i + 2]);
+      let transformedNormal = m4.multiplyWithV3(m4.rotation(this.rotation[0], this.rotation[1], this.rotation[2]), vecNormal).slice(0, 3);
 
-      let temporaryPoint = new Point(this.position[i], this.position[i + 1], this.position[i + 2]);
-      let temporaryNormalPoint = new Point(this.normal[i], this.normal[i + 1], this.normal[i + 2]);
-      // translate
-      // console.log("temporaryPoint for ", this.name);
-      // console.log("temporaryPoint before", temporaryPoint.flatten());
-      // console.log(temporaryPoint.flatten());
-      // console.log("anchor", this.anchor);
-      temporaryPoint.translate(this.translation);
-
-      // rotate
-      temporaryPoint.rotate(this.rotation, this.anchor);
-
-      // scale
-      temporaryPoint.scale(this.scale, this.anchor);
-
-      // rotate
-      temporaryNormalPoint.rotate(this.rotation, [0, 0, 0]);
-
-
-      let temporaryNormal = temporaryNormalPoint.flatten();
-      temporaryNormal = [Math.round(temporaryNormal[0]), Math.round(temporaryNormal[1]), Math.round(temporaryNormal[2])];
-
-      // console.log("temporaryPoint after", temporaryPoint.flatten());
-
-      newPositions = [...newPositions, ...temporaryPoint.flatten()];
-      newNormals = [...newNormals, ...temporaryNormal];
-
-      // newPositions = [...newPositions, ...transformedPoint];
-      // newNormals = [...newNormals, ...transformedNormal];
+      newPositions = [...newPositions, ...transformedPoint];
+      newNormals = [...newNormals, ...transformedNormal];
     }
 
     this.position = newPositions;
     this.normal = newNormals;
-    // console.log("anchor for", this.name, this.anchor);
-    // this.setCenterAsAnchor();
-    // console.log("newAnchor for", this.name, this.anchor);
-    // console.log("Normal for", this.name, this.normal);
-    // console.log("newNormal for", this.name, newNormal);
-
-    // this.completeModelUsingCubes();
   }
 
 

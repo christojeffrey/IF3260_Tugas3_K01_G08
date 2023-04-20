@@ -32,13 +32,9 @@ function setupUI(gl) {
   let projection = "perspective";
   let obliqueAngle = 45;
   let perspectiveFoV = 90;
-  // let rotation = [degToRad(0), degToRad(0), degToRad(350)];
-  // let rotation = [degToRad(0), degToRad(315), degToRad(0)];
   let rotation = [degToRad(0), degToRad(0), degToRad(0)];
-  // let translation = [0, 0, 0];\
   let translation = [0, 0, 0];
   let scale = [1, 1, 1];
-  // let scale = [0.7, 0.7, 0.7];
   let camera = { radius: 10, angle: degToRad(0) };
   let shading = true;
   let animate = false;
@@ -75,9 +71,7 @@ function setupUI(gl) {
   setupCanvasListener();
   setupShadingListener();
   setupHelpListener();
-
-  setModelsChildrenList();
-  inFocusManipulationListener();
+  setupTextureListener();
 
   // Right bar listeners
   setupProjectionListener();
@@ -86,6 +80,9 @@ function setupUI(gl) {
   setupRotationListener();
   setupScaleListener();
   setupCameraListener();
+
+  setModelsChildrenList();
+  inFocusManipulationListener();
 
   // animation
   setupKeyframeListener();
@@ -244,8 +241,11 @@ function setupModelListener() {
 
   function updateModel(e) {
     let model = e.target.value;
+    let texture = state.modelBeingDrawn.texture;
     state.modelBeingDrawn = modelListAsObject[model];
+    state.modelBeingDrawn.texture = texture;
     state.modelInFocus = state.modelBeingDrawn;
+    console.log("state.modelBeingDrawn", state.modelBeingDrawn);
     setModelsChildrenList();
     setupKeyframeListener();
   }
@@ -320,44 +320,41 @@ function setupFileListener() {
     }
 
     // for make default model with transformation
-    let rectangle_point = [];
+    // let rectangle_point = [];
 
-    for (let i = 0; i < state.modelInFocus.cubes.length; i++) {
-      rectangle_point.push(transformedPosition[108 * i + 0]);
-      rectangle_point.push(transformedPosition[108 * i + 1]);
-      rectangle_point.push(transformedPosition[108 * i + 2]);
-      rectangle_point.push(transformedPosition[108 * i + 3]);
-      rectangle_point.push(transformedPosition[108 * i + 4]);
-      rectangle_point.push(transformedPosition[108 * i + 5]);
-      rectangle_point.push(transformedPosition[108 * i + 12]);
-      rectangle_point.push(transformedPosition[108 * i + 13]);
-      rectangle_point.push(transformedPosition[108 * i + 14]);
-      rectangle_point.push(transformedPosition[108 * i + 6]);
-      rectangle_point.push(transformedPosition[108 * i + 7]);
-      rectangle_point.push(transformedPosition[108 * i + 8]);
+    // for (let i = 0; i < state.modelInFocus.cubes.length; i++) {
+    //   rectangle_point.push(transformedPosition[108 * i + 0]);
+    //   rectangle_point.push(transformedPosition[108 * i + 1]);
+    //   rectangle_point.push(transformedPosition[108 * i + 2]);
+    //   rectangle_point.push(transformedPosition[108 * i + 3]);
+    //   rectangle_point.push(transformedPosition[108 * i + 4]);
+    //   rectangle_point.push(transformedPosition[108 * i + 5]);
+    //   rectangle_point.push(transformedPosition[108 * i + 12]);
+    //   rectangle_point.push(transformedPosition[108 * i + 13]);
+    //   rectangle_point.push(transformedPosition[108 * i + 14]);
+    //   rectangle_point.push(transformedPosition[108 * i + 6]);
+    //   rectangle_point.push(transformedPosition[108 * i + 7]);
+    //   rectangle_point.push(transformedPosition[108 * i + 8]);
 
-      rectangle_point.push(transformedPosition[108 * i + 24]);
-      rectangle_point.push(transformedPosition[108 * i + 25]);
-      rectangle_point.push(transformedPosition[108 * i + 26]);
-      rectangle_point.push(transformedPosition[108 * i + 30]);
-      rectangle_point.push(transformedPosition[108 * i + 31]);
-      rectangle_point.push(transformedPosition[108 * i + 32]);
-      rectangle_point.push(transformedPosition[108 * i + 21]);
-      rectangle_point.push(transformedPosition[108 * i + 22]);
-      rectangle_point.push(transformedPosition[108 * i + 23]);
-      rectangle_point.push(transformedPosition[108 * i + 18]);
-      rectangle_point.push(transformedPosition[108 * i + 19]);
-      rectangle_point.push(transformedPosition[108 * i + 20]);
-    }
+    //   rectangle_point.push(transformedPosition[108 * i + 24]);
+    //   rectangle_point.push(transformedPosition[108 * i + 25]);
+    //   rectangle_point.push(transformedPosition[108 * i + 26]);
+    //   rectangle_point.push(transformedPosition[108 * i + 30]);
+    //   rectangle_point.push(transformedPosition[108 * i + 31]);
+    //   rectangle_point.push(transformedPosition[108 * i + 32]);
+    //   rectangle_point.push(transformedPosition[108 * i + 21]);
+    //   rectangle_point.push(transformedPosition[108 * i + 22]);
+    //   rectangle_point.push(transformedPosition[108 * i + 23]);
+    //   rectangle_point.push(transformedPosition[108 * i + 18]);
+    //   rectangle_point.push(transformedPosition[108 * i + 19]);
+    //   rectangle_point.push(transformedPosition[108 * i + 20]);
+    // }
     let data = {
       name: state.modelInFocus.name,
       position: transformedPosition,
       color: state.modelInFocus.color,
     };
 
-    // let data = {
-    //   rectangle_point: rectangle_point,
-    // }
     let json = JSON.stringify(data);
     let blob = new Blob([json], { type: "application/json" });
     let url = URL.createObjectURL(blob);
@@ -433,6 +430,10 @@ function resetCanvas() {
     position: defaultState.modelInFocus.position,
     color: defaultState.modelInFocus.color,
     normal: defaultState.modelInFocus.normal,
+    texture: {
+      mode: defaultState.modelInFocus.texture.mode,
+      coordinate: defaultState.modelInFocus.texture.coordinate,
+    },
     anchor: defaultState.modelInFocus.anchor,
   };
   state.totalVertices = defaultState.totalVertices;
@@ -565,6 +566,46 @@ function resizeCanvasToDisplaySize(canvas, multiplier) {
     canvas.height = height;
   }
   cs.set(width, height, 2000);
+}
+
+function setupTextureListener() {
+  let textureElmt = document.querySelectorAll("input[name=texture]");
+  textureElmt.forEach((elmt) => {
+    elmt.addEventListener("change", (e) => {
+      updateTexture(e);
+    });
+  });
+
+  function updateTexture(e) {
+    let texture = e.target.value;
+    state.modelBeingDrawn.texture.mode = texture;
+    // let projectionMenuElmt = document.querySelector("h3[name='projectionMenu']");
+    // projectionMenuElmt.innerHTML = texture[0].toUpperCase() + texture.slice(1);
+
+    // let spaceElmt = document.querySelector("#space");
+    // let obliqueElmt = document.querySelector("#obliqueMenu");
+    // let perspectiveElmt = document.querySelector("#perspectiveMenu");
+    // switch (projection) {
+    //   case "orthographic":
+    //     spaceElmt.style.display = "block";
+
+    //     obliqueElmt.style.display = "none";
+    //     perspectiveElmt.style.display = "none";
+    //     break;
+    //   case "oblique":
+    //     spaceElmt.style.display = "none";
+
+    //     obliqueElmt.style.display = "inline-block";
+    //     perspectiveElmt.style.display = "none";
+    //     break;
+    //   case "perspective":
+    //     spaceElmt.style.display = "none";
+
+    //     obliqueElmt.style.display = "none";
+    //     perspectiveElmt.style.display = "inline-block";
+    //     break;
+    // }
+  }
 }
 
 function setupProjectionListener() {
