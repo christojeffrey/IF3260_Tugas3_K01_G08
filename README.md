@@ -23,4 +23,5 @@ How to run program with VSCODE Live Server
 
 1. Fransiskus Davin Anwari 13520025
 2. Timothy Stanley Setiawan 13520028
-3. Christopher Jeffrey 13520055
+3. Jeremy S.O.N. Simbolon 13520042
+4. Christopher Jeffrey 13520055
