@@ -1,7 +1,8 @@
 import { primaryColors } from "../../constant/colors.js";
 import { v3 } from "../../math/v3.js";
 import { m4 } from "../../math/m4.js";
-import { Point } from "./point.js";
+
+import { Cube } from "./cube.js";
 
 import { Keyframe } from "./keyframe.js";
 
@@ -119,8 +120,8 @@ export class Model {
     this.completeModelUsingCubes();
     let childrenKeys = Object.keys(this.children);
     childrenKeys.forEach((key) => {
-      console.log("key", key)
-      console.log("this.children[key]", this.children[key])
+      console.log("key", key);
+      console.log("this.children[key]", this.children[key]);
       this.children[key].updateModelBeingDrawnFully();
       this.position = [...this.position, ...this.children[key].position];
       this.color = [...this.color, ...this.children[key].color];
@@ -255,5 +256,55 @@ export class Model {
     childrenKeys.forEach((key) => {
       this.children[key].resetWholeModelManipulation();
     });
+  }
+
+  export() {
+    let children = [];
+    let childrenKeys = Object.keys(this.children);
+    childrenKeys.forEach((key) => {
+      children.push(this.children[key].export());
+    });
+
+    return {
+      name: this.name,
+
+      translation: this.translation,
+      rotation: this.rotation,
+      scale: this.scale,
+
+      anchor: this.anchor,
+
+      children: children,
+
+      color: this.color,
+      cubes: this.cubes.map((cube) => {
+        return cube.export();
+      }),
+    };
+  }
+  import(data) {
+    this.name = data.name;
+
+    this.translation = data.translation;
+    this.rotation = data.rotation;
+    this.scale = data.scale;
+
+    this.anchor = data.anchor;
+
+    this.color = data.color;
+    this.cubes = data.cubes.map((cube) => {
+      let newCube = new Cube();
+      newCube.import(cube);
+      return newCube;
+    });
+
+    this.children = {};
+    data.children.forEach((child) => {
+      let newChild = new Model();
+      newChild.import(child);
+      this.children[newChild.name] = newChild;
+    });
+    // complete the import
+    this.updateModelBeingDrawnFully();
   }
 }
