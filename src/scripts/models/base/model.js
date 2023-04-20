@@ -117,9 +117,10 @@ export class Model {
     // update position based on translation, rotation, scale and anchor
     // do this recursively for all children
     this.completeModelUsingCubes();
-
     let childrenKeys = Object.keys(this.children);
     childrenKeys.forEach((key) => {
+      console.log("key", key)
+      console.log("this.children[key]", this.children[key])
       this.children[key].updateModelBeingDrawnFully();
       this.position = [...this.position, ...this.children[key].position];
       this.color = [...this.color, ...this.children[key].color];
