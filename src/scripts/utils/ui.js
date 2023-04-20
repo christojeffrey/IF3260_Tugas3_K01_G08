@@ -264,8 +264,40 @@ function setupFileListener() {
 
   function importData() {
     // based on spec, seems like we should turn this off. canvas won't be reseted on import
-    // resetCanvas();
 
+    function importChildData(model){
+      let child = {
+        name: model.name,
+        position: model.position,
+        color: model.color,
+        normal: [],
+        anchor: [],
+        children: [],
+      };
+      for (let i = 0; i < model.position.length; i += 9) {
+        let vec1 = v3.create(model.position[i + 3] - model.position[i], model.position[i + 4] - model.position[i + 1], model.position[i + 5] - model.position[i + 2]);
+        let vec2 = v3.create(model.position[i + 6] - model.position[i], model.position[i + 7] - model.position[i + 1], model.position[i + 8] - model.position[i + 2]);
+        let normal = v3.cross(vec2, vec1);
+        v3.normalize(normal, normal);
+        child.normal = [...child.normal, ...normal, ...normal, ...normal];
+      }
+
+      let maxX = Math.max(...model.position.filter((_, i) => i % 3 === 0));
+      let minX = Math.min(...model.position.filter((_, i) => i % 3 === 0));
+      let maxY = Math.max(...model.position.filter((_, i) => i % 3 === 1));
+      let minY = Math.min(...model.position.filter((_, i) => i % 3 === 1));
+      let maxZ = Math.max(...model.position.filter((_, i) => i % 3 === 2));
+      let minZ = Math.min(...model.position.filter((_, i) => i % 3 === 2));
+      child.anchor = [(maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2];
+      
+      if (model.children){
+        for (let [key, child] of Object.entries(model.children)){
+          child.children.push(importChildData(child));
+        }
+      }
+
+      return child;
+    }
     let file = this.files[0];
     let reader = new FileReader();
     reader.onload = function (e) {
@@ -298,33 +330,14 @@ function setupFileListener() {
 
       defaultState.totalVertices = defaultState.modelInFocus.position.length / 3;
 
-      for ([key, value] of Object.entries(data.children)) {
-        let child = {
-          name: key,
-          position: value.position,
-          color: value.color,
-          normal: [],
-          anchor: [],
-          children: {},
-        };
-        for (let i = 0; i < value.position.length; i += 9) {
-          let vec1 = v3.create(value.position[i + 3] - value.position[i], value.position[i + 4] - value.position[i + 1], value.position[i + 5] - value.position[i + 2]);
-          let vec2 = v3.create(value.position[i + 6] - value.position[i], value.position[i + 7] - value.position[i + 1], value.position[i + 8] - value.position[i + 2]);
-          let normal = v3.cross(vec2, vec1);
-          v3.normalize(normal, normal);
-          child.normal = [...child.normal, ...normal, ...normal, ...normal];
-        }
+      console.log(defaultState.modelInFocus.children)
 
-        let maxX = Math.max(...value.position.filter((_, i) => i % 3 === 0));
-        let minX = Math.min(...value.position.filter((_, i) => i % 3 === 0));
-        let maxY = Math.max(...value.position.filter((_, i) => i % 3 === 1));
-        let minY = Math.min(...value.position.filter((_, i) => i % 3 === 1));
-        let maxZ = Math.max(...value.position.filter((_, i) => i % 3 === 2));
-        let minZ = Math.min(...value.position.filter((_, i) => i % 3 === 2));
-        child.anchor = [(maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2];
-
-        defaultState.modelInFocus.children[key] = child;
-      }
+      // for (var [key, value] of Object.entries(defaultState.modelInFocus.children)){
+      //   console.log(value)
+      //   if (value.children){
+      //     value.children = importChildData(value);
+      //   }
+      // }
       defaultState.modelBeingDrawn = defaultState.modelInFocus;
       // set the imported file as the default state
       // Pass defaultState to state
@@ -335,8 +348,8 @@ function setupFileListener() {
       state.modelInFocus.anchor = defaultState.modelInFocus.anchor;
       state.totalVertices = defaultState.totalVertices;
       state.modelInFocus.children = defaultState.modelInFocus.children;
-      
       state.modelBeingDrawn = defaultState.modelBeingDrawn;
+
     };
     reader.readAsText(file);
 
@@ -345,57 +358,66 @@ function setupFileListener() {
   }
 
   function exportData() {
-    // Transform position
-    setupModelListener();
+    // Define recursive function
+    function exportChildData(child) {
+      let transformChildPosition = [];
+      for (let i = 0; i < child.position.length; i += 3) {
+        let vec = v3.create(child.position[i], child.position[i + 1], child.position[i + 2]);
+        let transformedVec = m4.multiplyWithV3(m4.transform(state.translation, state.rotation, state.scale, child.anchor), vec);
+        transformedVec = transformedVec.slice(0, 3);
+        transformChildPosition = [...transformChildPosition, Math.round(transformedVec[0]), Math.round(transformedVec[1]), Math.round(transformedVec[2])];
+      }
+  
+      let childData = {
+        name: child.name,
+        position: transformChildPosition,
+        color: child.color,
+      };
+  
+      if (child.children) {
+        let children = [];
+        for (var [key, value] of Object.entries(child.children)) {
+          children.push(exportChildData(value));
+        }
+        childData.children = children;
+      }
+  
+      return childData;
+    }
+  
+    // Transform position of parent
     let transformedPosition = [];
-    var child = [];
     for (let i = 0; i < state.modelInFocusParent.position.length; i += 3) {
       let vec = v3.create(state.modelInFocusParent.position[i], state.modelInFocusParent.position[i + 1], state.modelInFocusParent.position[i + 2]);
-      // console.log(state.modelInFocusParent.anchor);
       let transformedVec = m4.multiplyWithV3(m4.transform(state.translation, state.rotation, state.scale, state.modelInFocusParent.anchor), vec);
       transformedVec = transformedVec.slice(0, 3);
       transformedPosition = [...transformedPosition, Math.round(transformedVec[0]), Math.round(transformedVec[1]), Math.round(transformedVec[2])];
     }
-
+  
+    // Build child array of parent
+    let child = [];
     for (var [key, value] of Object.entries(state.modelInFocusParent.children)) {
-      console.log(`${key}: ${value}`);
-      console.log(value)
-      let transformChildPosition = [];
-      for (let i = 0; i < value.position.length; i += 3) {
-        let vec = v3.create(value.position[i], value.position[i + 1], value.position[i + 2]);
-        // console.log(state.modelInFocusParent.anchor);
-        let transformedVec = m4.multiplyWithV3(m4.transform(state.translation, state.rotation, state.scale, value.anchor), vec);
-        transformedVec = transformedVec.slice(0, 3);
-        transformChildPosition = [...transformChildPosition, Math.round(transformedVec[0]), Math.round(transformedVec[1]), Math.round(transformedVec[2])];
-      }
-      //push data to child
-      //recursively add children of children
-
-      
-      child.push({
-        name: value.name,
-        position: transformChildPosition,
-        color: value.color,
-        parent: state.modelInFocusParent.name,
-      });
+      child.push(exportChildData(value));
     }
-
+  
+    // Build data object
     let data = {
-      name: state.modelInFocus.name,
+      name: state.modelInFocusParent.name,
       position: transformedPosition,
-      color: state.modelInFocus.color,
+      color: state.modelInFocusParent.color,
       children: child,
     };
-
+  
+    // Save data to file
     let json = JSON.stringify(data);
     let blob = new Blob([json], { type: "application/json" });
     let url = URL.createObjectURL(blob);
     let a = document.createElement("a");
     a.download = "data.json";
-
     a.href = url;
     a.click();
   }
+  
 }
 
 function setupCanvasListener() {
@@ -798,6 +820,7 @@ function inFocusManipulationListener() {
       elmtValue.textContent = e.target.value;
       elmtInput.value = e.target.value;
       state.modelBeingDrawn.updateModelBeingDrawnFully();
+      console.log(state.modelInFocus);
     });
   }
 
