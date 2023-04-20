@@ -291,7 +291,9 @@ function setupFileListener() {
       state.modelInFocus = model;
 
       console.error("state.modelBeingDrawn", state.modelBeingDrawn);
+      setModelsChildrenList();
       inFocusManipulationListener();
+      setupKeyframeListener();
     };
 
     reader.readAsText(file);
