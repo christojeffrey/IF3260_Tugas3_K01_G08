@@ -51,6 +51,7 @@ function setupUI(gl) {
     animate,
     isKeyframePlaying,
     customImage,
+    modelInFocusParent
   };
 
   // set state as the default state
