@@ -450,81 +450,20 @@ function resetCanvas() {
   state.shading = defaultState.shading;
   state.animate = defaultState.animate;
 
-  let modelElmt = document.querySelectorAll("input[name=model]");
-  for (let i = 0; i < modelElmt.length; i++) {
-    if (modelElmt[i].value == state.modelInFocus.name) {
-      modelElmt[i].checked = true;
-      break;
-    }
-  }
+  state.rotation = [degToRad(0), degToRad(0), degToRad(0)];
+  state.translation = [0, 0, 0];
+  state.scale = [1, 1, 1];
 
-  let projectionElmt = document.querySelectorAll("input[name='projection']");
-  for (let i = 0; i < projectionElmt.length; i++) {
-    if (projectionElmt[i].value == state.projection) {
-      projectionElmt[i].checked = true;
-      break;
-    }
-  }
+  state.camera = { radius: 10, angle: degToRad(0) };
+  state.hading = true;
+  state.animate = false;
+  state.isKeyframePlaying = false;
 
-  let translateXElmt = document.querySelector("#translateX");
-  translateXElmt.value = state.translation[0];
-  let translateYElmt = document.querySelector("#translateY");
-  translateYElmt.value = state.translation[1];
-  let translateZElmt = document.querySelector("#translateZ");
-  translateZElmt.value = state.translation[2];
+  setModelsChildrenList();
 
-  let translateXValueELmt = document.querySelector("#translateXValue");
-  translateXValueELmt.textContent = state.translation[0];
-  let translateYValueELmt = document.querySelector("#translateYValue");
-  translateYValueELmt.textContent = state.translation[1];
-  let translateZValueELmt = document.querySelector("#translateZValue");
-  translateZValueELmt.textContent = state.translation[2];
-
-  let rotateXElmt = document.querySelector("#rotateX");
-  rotateXElmt.value = state.rotation[0];
-  let rotateYElmt = document.querySelector("#rotateY");
-  rotateYElmt.value = state.rotation[1];
-  let rotateZElmt = document.querySelector("#rotateZ");
-  rotateZElmt.value = state.rotation[2];
-
-  let rotateXValueELmt = document.querySelector("#rotateXValue");
-  rotateXValueELmt.textContent = state.rotation[0];
-  let rotateYValueELmt = document.querySelector("#rotateYValue");
-  rotateYValueELmt.textContent = state.rotation[1];
-  let rotateZValueELmt = document.querySelector("#rotateZValue");
-  rotateZValueELmt.textContent = state.rotation[2];
-
-  let scaleXElmt = document.querySelector("#scaleX");
-  scaleXElmt.value = state.scale[0];
-  let scaleYElmt = document.querySelector("#scaleY");
-  scaleYElmt.value = state.scale[1];
-  let scaleZElmt = document.querySelector("#scaleZ");
-  scaleZElmt.value = state.scale[2];
-
-  let scaleXValueELmt = document.querySelector("#scaleXValue");
-  scaleXValueELmt.textContent = state.scale[0];
-  let scaleYValueELmt = document.querySelector("#scaleYValue");
-  scaleYValueELmt.textContent = state.scale[1];
-  let scaleZValueELmt = document.querySelector("#scaleZValue");
-  scaleZValueELmt.textContent = state.scale[2];
-
-  let radiusElmt = document.querySelector("#radius");
-  radiusElmt.value = state.camera.radius;
-
-  let radiusValueElmt = document.querySelector("#radiusValue");
-  radiusValueElmt.textContent = state.camera.radius;
-
-  let angleElmt = document.querySelector("#angle");
-  angleElmt.value = state.camera.angle;
-
-  let angleValueElmt = document.querySelector("#angleValue");
-  angleValueElmt.textContent = state.camera.angle;
-
-  let animateElmt = document.querySelector("#animate");
-  animateElmt.checked = state.animate;
-
-  let shadingElmt = document.querySelector("#shading");
-  shadingElmt.checked = state.shading;
+  setupTranslateListener();
+  setupRotationListener();
+  setupScaleListener();
 }
 
 function setupAnimationListener() {
@@ -681,6 +620,7 @@ function setupTranslateListener() {
   translateXElmt.min = -(Math.round(cs.width / 1000) * 1000) / 4;
   translateXElmt.max = (Math.round(cs.width / 1000) * 1000) / 4;
   translateXElmt.value = 0;
+  updatePosition(0)(null, { value: translateXElmt.value });
   translateXElmt.addEventListener("input", (e) => {
     updatePosition(0)(e, { value: e.target.value });
   });
@@ -690,6 +630,7 @@ function setupTranslateListener() {
   translateYElmt.min = (-Math.round(cs.height / 1000) * 1000) / 4;
   translateYElmt.max = (Math.round(cs.height / 1000) * 1000) / 4;
   translateYElmt.value = 0;
+  updatePosition(1)(null, { value: translateYElmt.value });
   translateYElmt.addEventListener("input", (e) => {
     updatePosition(1)(e, { value: e.target.value });
   });
@@ -699,6 +640,7 @@ function setupTranslateListener() {
   translateZElmt.min = -cs.depth / 8;
   translateZElmt.max = cs.depth / 8;
   translateZElmt.value = 0;
+  updatePosition(2)(null, { value: translateZElmt.value });
   translateZElmt.addEventListener("input", (e) => {
     updatePosition(2)(e, { value: e.target.value });
   });
@@ -730,18 +672,24 @@ function setupTranslateListener() {
 function setupRotationListener() {
   // set listeners for rotateX sliders
   let rotateXELmt = document.querySelector("#rotateX");
+  rotateXELmt.value = 0;
+  updateRotation(0)(null, { value: rotateXELmt.value });
   rotateXELmt.addEventListener("input", (e) => {
     updateRotation(0)(e, { value: e.target.value });
   });
 
   // set listeners for rotateY sliders
   let rotateYElmt = document.querySelector("#rotateY");
+  rotateYElmt.value = 0;
+  updateRotation(1)(null, { value: rotateYElmt.value });
   rotateYElmt.addEventListener("input", (e) => {
     updateRotation(1)(e, { value: e.target.value });
   });
 
   // set listeners for rotateZ sliders
   let rotateZElmt = document.querySelector("#rotateZ");
+  rotateZElmt.value = 0;
+  updateRotation(2)(null, { value: rotateZElmt.value });
   rotateZElmt.addEventListener("input", (e) => {
     updateRotation(2)(e, { value: e.target.value });
   });
@@ -773,18 +721,24 @@ function setupRotationListener() {
 function setupScaleListener() {
   // set listeners for scaleX sliders
   let scaleXElmt = document.querySelector("#scaleX");
+  scaleXElmt.value = 1;
+  updateScale(0)(null, { value: scaleXElmt.value });
   scaleXElmt.addEventListener("input", (e) => {
     updateScale(0)(e, { value: e.target.value });
   });
 
   // set listeners for scaleY sliders
   let scaleYElmt = document.querySelector("#scaleY");
+  scaleYElmt.value = 1;
+  updateScale(1)(null, { value: scaleYElmt.value });
   scaleYElmt.addEventListener("input", (e) => {
     updateScale(1)(e, { value: e.target.value });
   });
 
   // set listeners for scaleZ sliders
   let scaleZElmt = document.querySelector("#scaleZ");
+  scaleZElmt.value = 1;
+  updateScale(2)(null, { value: scaleZElmt.value });
   scaleZElmt.addEventListener("input", (e) => {
     updateScale(2)(e, { value: e.target.value });
   });
