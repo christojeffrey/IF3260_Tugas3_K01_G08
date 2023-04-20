@@ -71,7 +71,7 @@ export class Model {
     for (let i = 0; i < this.cubes.length; i++) {
       for (let j = 0; j < this.cubes[i].rectangles.length; j++) {
         let positions = this.cubes[i].rectangles[j].flattenToPoints();
-        console.log("positions", positions);
+        // console.log("positions", positions);
         for (let k = 0; k < positions.length; k += 3 * 3) {
           let vec1 = v3.create(positions[k + 3] - positions[k], positions[k + 4] - positions[k + 1], positions[k + 5] - positions[k + 2]);
           let vec2 = v3.create(positions[k + 6] - positions[k], positions[k + 7] - positions[k + 1], positions[k + 8] - positions[k + 2]);
@@ -79,9 +79,9 @@ export class Model {
           // vec1 = v3.normalize(vec1);
           // vec2 = v3.normalize(vec2);
 
-          console.log("vec1", vec1);
-          console.log("vec2", vec2);
-          console.log("normal", normal);
+          // console.log("vec1", vec1);
+          // console.log("vec2", vec2);
+          // console.log("normal", normal);
 
           this.normal = [...this.normal, ...normal, ...normal, ...normal];
           this.tangent = [...this.tangent, ...vec2, ...vec2, ...vec2];
@@ -117,9 +117,10 @@ export class Model {
     // update position based on translation, rotation, scale and anchor
     // do this recursively for all children
     this.completeModelUsingCubes();
-
     let childrenKeys = Object.keys(this.children);
     childrenKeys.forEach((key) => {
+      console.log("key", key)
+      console.log("this.children[key]", this.children[key])
       this.children[key].updateModelBeingDrawnFully();
       this.position = [...this.position, ...this.children[key].position];
       this.color = [...this.color, ...this.children[key].color];
