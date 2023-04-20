@@ -23,7 +23,7 @@ function setupUI(gl) {
   let firstObjectKey = Object.keys(modelListAsObject)[0];
   let modelBeingDrawn = modelListAsObject[firstObjectKey];
   let modelInFocus = modelBeingDrawn;
-  let modelInFocusParent = modelBeingDrawn
+  let modelInFocusParent = modelBeingDrawn;
 
   let projection = "perspective";
   let obliqueAngle = 45;
@@ -51,7 +51,7 @@ function setupUI(gl) {
     animate,
     isKeyframePlaying,
     customImage,
-    modelInFocusParent
+    modelInFocusParent,
   };
 
   // set state as the default state
@@ -90,19 +90,20 @@ function setupUI(gl) {
 
   return state;
 }
+
 function setupKeyframeListener() {
   // #current-frame-count
   let currentFrameCountElmt = document.querySelector("#current-frame-count");
   // set to 0
   currentFrameCountElmt.value = 0;
   // change event
-  currentFrameCountElmt.addEventListener("change", () => {
+  currentFrameCountElmt.onchange = () => {
     // update model
     state.modelBeingDrawn.updateModelBeingDrawnAtFrame(parseInt(currentFrameCountElmt.value));
     state.modelBeingDrawn.updateModelBeingDrawnFully();
     // update slider
     inFocusManipulationListener();
-  });
+  };
 
   // #max-frame-count text
   // set based on the current model being drawn
@@ -115,7 +116,7 @@ function setupKeyframeListener() {
 
   // #play-animation button
   let playAnimationButton = document.querySelector("#play-animation");
-  playAnimationButton.addEventListener("click", () => {
+  function handlePlayAnimationButtonClicked() {
     console.log("play animation");
     // change text
     if (state.isKeyframePlaying) {
@@ -124,37 +125,44 @@ function setupKeyframeListener() {
     } else {
       playAnimationButton.textContent = "Pause";
       state.isKeyframePlaying = true;
-      // call model updateModelBeingDrawnAtFrame every second until the frame count is equal to the max frame count. then change text
-      let currentFrameCountElmt = document.querySelector("#current-frame-count");
-
-      let interval = setInterval(() => {
-        console.log("interval");
-        if (state.isKeyframePlaying) {
-          if (parseInt(currentFrameCountElmt.value) < maxModelFrame) {
-            currentFrameCountElmt.value = parseInt(currentFrameCountElmt.value) + 1;
-          } else {
-            // animation is done
-            // stop interval
-            currentFrameCountElmt.value = 0;
-            state.isKeyframePlaying = false;
-          }
-        } else {
-          playAnimationButton.textContent = "Play";
-          state.isKeyframePlaying = false;
-          // stop interval
-          clearInterval(interval);
-          // update model
-        }
-        state.modelBeingDrawn.updateModelBeingDrawnAtFrame(parseInt(currentFrameCountElmt.value));
-        state.modelBeingDrawn.updateModelBeingDrawnFully();
-        // update slider
-        inFocusManipulationListener();
-      }, KEYFRAME_DURATION);
     }
-  });
+    // call model updateModelBeingDrawnAtFrame every second until the frame count is equal to the max frame count. then change text
+    let currentFrameCountElmt = document.querySelector("#current-frame-count");
+    console.log("state.isKeyframePlaying", state.isKeyframePlaying);
+    let interval = setInterval(() => {
+      console.error("interval", state.isKeyframePlaying);
+      if (state.isKeyframePlaying) {
+        // if playing, update frame count
+        if (parseInt(currentFrameCountElmt.value) < maxModelFrame) {
+          currentFrameCountElmt.value = parseInt(currentFrameCountElmt.value) + 1;
+        } else {
+          // animation is done
+          // stop interval
+          currentFrameCountElmt.value = 0;
+          state.isKeyframePlaying = false;
+        }
+      } else {
+        // if not playing, stop interval (happen when pause button is clicked)
+        console.log("stop interval");
+        playAnimationButton.textContent = "Play";
+        state.isKeyframePlaying = false;
+        // stop interval
+        clearInterval(interval);
+        // update model
+      }
+      state.modelBeingDrawn.updateModelBeingDrawnAtFrame(parseInt(currentFrameCountElmt.value));
+      state.modelBeingDrawn.updateModelBeingDrawnFully();
+      // update slider
+      inFocusManipulationListener();
+    }, KEYFRAME_DURATION);
+  }
+  // clear previous event listener
+  // add onclick
+  playAnimationButton.onclick = handlePlayAnimationButtonClicked;
+
   // #reset-animation button
   let resetAnimationButton = document.querySelector("#reset-animation");
-  resetAnimationButton.addEventListener("click", () => {
+  resetAnimationButton.onclick = () => {
     let currentFrameCountElmt = document.querySelector("#current-frame-count");
     currentFrameCountElmt.value = 0;
     // change text
@@ -163,7 +171,7 @@ function setupKeyframeListener() {
     // update model being drawn
     state.modelBeingDrawn.updateModelBeingDrawnAtFrame(0);
     state.modelBeingDrawn.updateModelBeingDrawnFully();
-  });
+  };
 }
 function setupModelList() {
   // id:model-list
@@ -214,14 +222,14 @@ function addChildrenButtonRecursively(leftMargin, child, modelsChildrenElmt) {
   // button
   let buttonElmt = document.createElement("button");
   buttonElmt.innerText = child.name;
-  buttonElmt.addEventListener("click", (e) => {
+  buttonElmt.onclick = (e) => {
     // change id model-in-focus
     let modelElmt = document.querySelector("#model-in-focus");
     modelElmt.innerText = child.name;
     state.modelInFocus = child;
     // update model being drawn slider
     inFocusManipulationListener();
-  });
+  };
   childElmt.appendChild(buttonElmt);
   modelsChildrenElmt.appendChild(childElmt);
 
@@ -235,9 +243,9 @@ function addChildrenButtonRecursively(leftMargin, child, modelsChildrenElmt) {
 function setupModelListener(gl) {
   let modelElmt = document.querySelectorAll("input[name=model]");
   modelElmt.forEach((elmt) => {
-    elmt.addEventListener("change", (e) => {
+    elmt.onchange = (e) => {
       updateModel(e);
-    });
+    };
   });
 
   function updateModel(e) {
@@ -265,9 +273,8 @@ function setupFileListener() {
   function importData() {
     // based on spec, seems like we should turn this off. canvas won't be reseted on import
 
-    function importChildData(model, state){
-      console.log("drawn",state.modelBeingDrawn);
-      console.log(model)
+    function importChildData(model) {
+
       let child = {
         name: model.name,
         position: model.position,
@@ -294,6 +301,7 @@ function setupFileListener() {
       let maxZ = Math.max(...model.position.filter((_, i) => i % 3 === 2));
       let minZ = Math.min(...model.position.filter((_, i) => i % 3 === 2));
       child.anchor = [(maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2];
+
       
       console.log("ABSHDBJJS",state)
       if (state){
@@ -321,7 +329,7 @@ function setupFileListener() {
       let modelElmt = document.querySelectorAll(`input[name=${data.name}]`);
       modelElmt.checked = true;
       // Pass data to defaultState
-      console.log("data", data)
+      console.log("data", data);
       defaultState.modelInFocus.name = data.name;
       defaultState.modelInFocus.position = data.position;
       defaultState.modelInFocus.color = data.color;
@@ -345,6 +353,7 @@ function setupFileListener() {
       defaultState.modelInFocus.anchor = [(maxX + minX) / 2, data.name === "pyramid" ? (maxY + minY) / 2 : (maxY + minY) / 2, (maxZ + minZ) / 2];
 
       defaultState.totalVertices = defaultState.modelInFocus.position.length / 3;
+
 
       console.log(defaultState.modelInFocus.children)
       let childcount = 0;
@@ -390,7 +399,7 @@ function setupFileListener() {
         transformedVec = transformedVec.slice(0, 3);
         transformChildPosition = [...transformChildPosition, Math.round(transformedVec[0]), Math.round(transformedVec[1]), Math.round(transformedVec[2])];
       }
-  
+
       let childData = {
         name: child.name,
         position: transformChildPosition,
@@ -399,7 +408,7 @@ function setupFileListener() {
         rotation : child.rotation,
         scale : child.scale,
       };
-  
+
       if (child.children) {
         let children = [];
         for (var [key, value] of Object.entries(child.children)) {
@@ -408,10 +417,10 @@ function setupFileListener() {
         }
         childData.children = children;
       }
-  
+
       return childData;
     }
-  
+
     // Transform position of parent
     let transformedPosition = [];
     for (let i = 0; i < state.modelInFocusParent.position.length; i += 3) {
@@ -420,14 +429,14 @@ function setupFileListener() {
       transformedVec = transformedVec.slice(0, 3);
       transformedPosition = [...transformedPosition, Math.round(transformedVec[0]), Math.round(transformedVec[1]), Math.round(transformedVec[2])];
     }
-  
+
     // Build child array of parent
     let child = [];
     for (var [key, value] of Object.entries(state.modelInFocusParent.children)) {
       console.log(key, value)
       child.push(exportChildData(value));
     }
-  
+
     // Build data object
     let data = {
       name: state.modelInFocusParent.name,
@@ -438,7 +447,7 @@ function setupFileListener() {
       scale : state.modelInFocusParent.scale,
       children: child,
     };
-  
+
     // Save data to file
     let json = JSON.stringify(data);
     let blob = new Blob([json], { type: "application/json" });
@@ -448,15 +457,14 @@ function setupFileListener() {
     a.href = url;
     a.click();
   }
-  
 }
 
 function setupCanvasListener() {
   let clearElmt = document.querySelector("#clear");
-  clearElmt.addEventListener("click", clearCanvas);
+  clearElmt.onclick = clearCanvas;
 
   let resetElmt = document.querySelector("#reset");
-  resetElmt.addEventListener("click", resetCanvas);
+  resetElmt.onclick = resetCanvas;
 
   let holding = false;
   let mouse = [0, 0];
@@ -536,9 +544,9 @@ function resetCanvas() {
 
 function setupAnimationListener() {
   let animationELmt = document.querySelector("#animate");
-  animationELmt.addEventListener("change", (e) => {
+  animationELmt.onchange = (e) => {
     updateAnimation(e);
-  });
+  };
 
   function updateAnimation(e) {
     state.animate = e.target.checked;
@@ -547,9 +555,9 @@ function setupAnimationListener() {
 
 function setupShadingListener() {
   let shadingElmt = document.querySelector("#shading");
-  shadingElmt.addEventListener("change", (e) => {
+  shadingElmt.onchange = (e) => {
     updateShading(e);
-  });
+  };
 
   function updateShading(e) {
     state.shading = e.target.checked;
@@ -559,9 +567,9 @@ function setupShadingListener() {
 function setupHelpListener() {
   // onclick open help.html on the same window
   let helpButton = document.querySelector("#help");
-  helpButton.addEventListener("click", (e) => {
+  helpButton.onclick = (e) => {
     window.open("help.html", "_self");
-  });
+  };
 }
 
 function resizeCanvasToDisplaySize(canvas, multiplier) {
@@ -578,9 +586,9 @@ function resizeCanvasToDisplaySize(canvas, multiplier) {
 function setupTextureListener(gl) {
   let textureElmt = document.querySelectorAll("input[name=texture]");
   textureElmt.forEach((elmt) => {
-    elmt.addEventListener("change", (e) => {
+    elmt.onchange = (e) => {
       updateTexture(e);
-    });
+    };
     elmt.checked = elmt.value === state.modelBeingDrawn.texture.mode;
   });
 
@@ -597,24 +605,24 @@ function setupTextureListener(gl) {
       customImageElmt.style.display = "none";
     }
 
-    customImageElmt.addEventListener("change", (e) => {
+    customImageElmt.onchange = (e) => {
       let file = e.target.files[0];
       let reader = new FileReader();
       reader.onload = function (e) {
         state.customImage = e.target.result;
-        createTexture(gl, state)
+        createTexture(gl, state);
       };
       reader.readAsDataURL(file);
-    });
+    };
   }
 }
 
 function setupProjectionListener() {
   let projectionElmt = document.querySelectorAll("input[name=projection]");
   projectionElmt.forEach((elmt) => {
-    elmt.addEventListener("change", (e) => {
+    elmt.onchange = (e) => {
       updateProjection(e);
-    });
+    };
   });
 
   function updateProjection(e) {
@@ -683,9 +691,9 @@ function setupTranslateListener() {
   translateXElmt.max = (Math.round(cs.width / 1000) * 1000) / 4;
   translateXElmt.value = 0;
   updatePosition(0)(null, { value: translateXElmt.value });
-  translateXElmt.addEventListener("input", (e) => {
+  translateXElmt.oninput = (e) => {
     updatePosition(0)(e, { value: e.target.value });
-  });
+  };
 
   // set listeners for translateY sliders
   let translateYElmt = document.querySelector("#translateY");
@@ -693,9 +701,9 @@ function setupTranslateListener() {
   translateYElmt.max = (Math.round(cs.height / 1000) * 1000) / 4;
   translateYElmt.value = 0;
   updatePosition(1)(null, { value: translateYElmt.value });
-  translateYElmt.addEventListener("input", (e) => {
+  translateYElmt.oninput = (e) => {
     updatePosition(1)(e, { value: e.target.value });
-  });
+  };
 
   // set listeners for translateZ sliders
   let translateZElmt = document.querySelector("#translateZ");
@@ -703,9 +711,9 @@ function setupTranslateListener() {
   translateZElmt.max = cs.depth / 8;
   translateZElmt.value = 0;
   updatePosition(2)(null, { value: translateZElmt.value });
-  translateZElmt.addEventListener("input", (e) => {
+  translateZElmt.oninput = (e) => {
     updatePosition(2)(e, { value: e.target.value });
-  });
+  };
 
   function updatePosition(idx) {
     return function (_, ui) {
@@ -736,25 +744,25 @@ function setupRotationListener() {
   let rotateXELmt = document.querySelector("#rotateX");
   rotateXELmt.value = 0;
   updateRotation(0)(null, { value: rotateXELmt.value });
-  rotateXELmt.addEventListener("input", (e) => {
+  rotateXELmt.oninput = (e) => {
     updateRotation(0)(e, { value: e.target.value });
-  });
+  };
 
   // set listeners for rotateY sliders
   let rotateYElmt = document.querySelector("#rotateY");
   rotateYElmt.value = 0;
   updateRotation(1)(null, { value: rotateYElmt.value });
-  rotateYElmt.addEventListener("input", (e) => {
+  rotateYElmt.oninput = (e) => {
     updateRotation(1)(e, { value: e.target.value });
-  });
+  };
 
   // set listeners for rotateZ sliders
   let rotateZElmt = document.querySelector("#rotateZ");
   rotateZElmt.value = 0;
   updateRotation(2)(null, { value: rotateZElmt.value });
-  rotateZElmt.addEventListener("input", (e) => {
+  rotateZElmt.oninput = (e) => {
     updateRotation(2)(e, { value: e.target.value });
-  });
+  };
 
   function updateRotation(idx) {
     return function (_, ui) {
@@ -785,25 +793,25 @@ function setupScaleListener() {
   let scaleXElmt = document.querySelector("#scaleX");
   scaleXElmt.value = 1;
   updateScale(0)(null, { value: scaleXElmt.value });
-  scaleXElmt.addEventListener("input", (e) => {
+  scaleXElmt.oninput = (e) => {
     updateScale(0)(e, { value: e.target.value });
-  });
+  };
 
   // set listeners for scaleY sliders
   let scaleYElmt = document.querySelector("#scaleY");
   scaleYElmt.value = 1;
   updateScale(1)(null, { value: scaleYElmt.value });
-  scaleYElmt.addEventListener("input", (e) => {
+  scaleYElmt.oninput = (e) => {
     updateScale(1)(e, { value: e.target.value });
-  });
+  };
 
   // set listeners for scaleZ sliders
   let scaleZElmt = document.querySelector("#scaleZ");
   scaleZElmt.value = 1;
   updateScale(2)(null, { value: scaleZElmt.value });
-  scaleZElmt.addEventListener("input", (e) => {
+  scaleZElmt.oninput = (e) => {
     updateScale(2)(e, { value: e.target.value });
-  });
+  };
 
   function updateScale(idx) {
     return function (_, ui) {
@@ -867,13 +875,13 @@ function inFocusManipulationListener() {
     elmtInput.value = radToDeg(state.modelInFocus.rotation[i]);
     elmtValue.textContent = radToDeg(state.modelInFocus.rotation[i]);
 
-    elmtInput.addEventListener("input", (e) => {
+    elmtInput.oninput = (e) => {
       // parse the value to float
       state.modelInFocus.rotation[i] = degToRad(parseFloat(e.target.value));
       elmtValue.textContent = e.target.value;
       elmtInput.value = e.target.value;
       state.modelBeingDrawn.updateModelBeingDrawnFully();
-    });
+    };
   }
 
   // scale
@@ -887,13 +895,13 @@ function inFocusManipulationListener() {
     elmtInput.value = state.modelInFocus.scale[i];
     elmtValue.textContent = state.modelInFocus.scale[i];
 
-    elmtInput.addEventListener("input", (e) => {
+    elmtInput.oninput = (e) => {
       // parse the value to float
       state.modelInFocus.scale[i] = parseFloat(e.target.value);
       elmtValue.textContent = e.target.value;
       elmtInput.value = e.target.value;
       state.modelBeingDrawn.updateModelBeingDrawnFully();
-    });
+    };
   }
 }
 
