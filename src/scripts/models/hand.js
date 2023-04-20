@@ -1,6 +1,6 @@
-import { Point } from "./classes/point.js";
-import { Model } from "./classes/model.js";
-import { Cube } from "./classes/cube.js";
+import { Point } from "./base/point.js";
+import { Model } from "./base/model.js";
+import { Cube } from "./base/cube.js";
 
 let distalThumb = new Model("distalThumb");
 distalThumb.setCubes([new Cube(25, 70, 25, new Point(-120, -65, 0))]);
@@ -91,7 +91,7 @@ proximalLittle.addChildren("intermediateLittle", intermediateLittle);
 proximalLittle.updateModelBeingDrawnFully();
 
 let hand = new Model("hand");
-hand.setCubes([new Cube(200, 200, 50, new Point(0, 0, 0))])
+hand.setCubes([new Cube(200, 200, 50, new Point(0, 0, 0))]);
 hand.completeModelUsingCubes();
 hand.setAnchor([0, 100, 0]);
 hand.addChildren("proximalThumb", proximalThumb);

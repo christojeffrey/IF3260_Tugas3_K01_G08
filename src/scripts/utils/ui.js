@@ -114,6 +114,8 @@ function setupKeyframeListener() {
   let maxModelFrame = state.modelBeingDrawn.getMaxFrameCount();
   // add slash infront
   maxFrameCountElmt.textContent = `/${maxModelFrame}`;
+  // set input max
+  currentFrameCountElmt.max = maxModelFrame;
 
   // #play-animation button
   let playAnimationButton = document.querySelector("#play-animation");
