@@ -265,7 +265,7 @@ function setupFileListener() {
   function importData() {
     // based on spec, seems like we should turn this off. canvas won't be reseted on import
 
-    function importChildData(model){
+    function importChildData(model, state){
       console.log("drawn",state.modelBeingDrawn);
       console.log(model)
       let child = {
@@ -295,12 +295,23 @@ function setupFileListener() {
       let minZ = Math.min(...model.position.filter((_, i) => i % 3 === 2));
       child.anchor = [(maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2];
       
-      if (model.children){
-        for (let [key, value] of Object.entries(model.children)){
-          child.children.push(importChildData(value));
+      console.log("ABSHDBJJS",state)
+      if (state){
+        console.log("BAR")
+        let childcount = 0;
+        for (let [key, value] of Object.entries(state)){
+          let childData = importChildData(model.children[childcount], value.children);
+          value.name = childData.name;
+          value.position = childData.position;
+          value.color = childData.color;
+          value.normal = childData.normal;
+          value.anchor = childData.anchor;
+          value.translation = childData.translation;
+          value.rotation = childData.rotation;
+          value.scale = childData.scale;
+          childcount++;
         }
       }
-
       return child;
     }
     let file = this.files[0];
