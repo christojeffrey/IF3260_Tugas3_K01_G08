@@ -5,6 +5,7 @@ import { m4 } from "../math/m4.js";
 
 import { minecraft, elbow, pig, horse, hand } from "../models/index.js";
 import { KEYFRAME_DURATION } from "../constant/keyframeduration.js";
+import { createTexture } from "../webgl/texture.js";
 
 //  update model list from here
 let modelListAsObject = {
@@ -39,6 +40,7 @@ function setupUI(gl) {
   let shading = true;
   let animate = false;
   let isKeyframePlaying = false;
+  let customImage = null;
 
   defaultState = {
     modelBeingDrawn,
@@ -53,6 +55,7 @@ function setupUI(gl) {
     shading,
     animate,
     isKeyframePlaying,
+    customImage,
   };
 
   // set state as the default state
@@ -71,7 +74,7 @@ function setupUI(gl) {
   setupCanvasListener();
   setupShadingListener();
   setupHelpListener();
-  setupTextureListener();
+  setupTextureListener(gl);
 
   // Right bar listeners
   setupProjectionListener();
@@ -494,7 +497,7 @@ function resizeCanvasToDisplaySize(canvas, multiplier) {
   cs.set(width, height, 2000);
 }
 
-function setupTextureListener() {
+function setupTextureListener(gl) {
   let textureElmt = document.querySelectorAll("input[name=texture]");
   textureElmt.forEach((elmt) => {
     elmt.addEventListener("change", (e) => {
@@ -505,32 +508,25 @@ function setupTextureListener() {
   function updateTexture(e) {
     let texture = e.target.value;
     state.modelBeingDrawn.texture.mode = texture;
-    // let projectionMenuElmt = document.querySelector("h3[name='projectionMenu']");
-    // projectionMenuElmt.innerHTML = texture[0].toUpperCase() + texture.slice(1);
 
-    // let spaceElmt = document.querySelector("#space");
-    // let obliqueElmt = document.querySelector("#obliqueMenu");
-    // let perspectiveElmt = document.querySelector("#perspectiveMenu");
-    // switch (projection) {
-    //   case "orthographic":
-    //     spaceElmt.style.display = "block";
+    console.log(state.modelBeingDrawn.texture.mode);
 
-    //     obliqueElmt.style.display = "none";
-    //     perspectiveElmt.style.display = "none";
-    //     break;
-    //   case "oblique":
-    //     spaceElmt.style.display = "none";
+    let customImageElmt = document.querySelector("#customImage");
+    if (texture === "custom") {
+      customImageElmt.style.display = "block";
+    } else {
+      customImageElmt.style.display = "none";
+    }
 
-    //     obliqueElmt.style.display = "inline-block";
-    //     perspectiveElmt.style.display = "none";
-    //     break;
-    //   case "perspective":
-    //     spaceElmt.style.display = "none";
-
-    //     obliqueElmt.style.display = "none";
-    //     perspectiveElmt.style.display = "inline-block";
-    //     break;
-    // }
+    customImageElmt.addEventListener("change", (e) => {
+      let file = e.target.files[0];
+      let reader = new FileReader();
+      reader.onload = function (e) {
+        state.customImage = e.target.result;
+        createTexture(gl, state)
+      };
+      reader.readAsDataURL(file);
+    });
   }
 }
 

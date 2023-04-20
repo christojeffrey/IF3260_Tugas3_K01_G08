@@ -5,7 +5,6 @@ varying vec4 v_color;
 
 varying vec3 v_worldNormal;
 varying vec3 v_worldPosition;
-varying vec3 v_viewModelPosition;
 
 varying vec2 v_texture;
 
@@ -24,6 +23,7 @@ varying mat3 v_tbn;
 // Texture
 uniform sampler2D u_textureImage;
 uniform sampler2D u_textureBumpMap;
+uniform sampler2D u_textureCustomImage;
 uniform samplerCube u_textureEnvironment;
 
 void main() {
@@ -33,15 +33,13 @@ void main() {
     gl_FragColor = v_color;
     vec3 normal = normalize(v_worldNormal);
 
-
     if (u_textureMode == 0) {
         gl_FragColor = texture2D(u_textureImage, v_texture);
     } else if (u_textureMode == 1) {
-
         vec3 norm = normalize(texture2D(u_textureBumpMap, v_texture).rgb * 2.0 - 1.0);
         vec3 normalBump = normalize(v_tbn * norm);
        
-       normal = normalBump;
+        normal = normalBump;
 
         gl_FragColor = texture2D(u_textureBumpMap, v_texture);
     } else if (u_textureMode == 2) {
@@ -50,7 +48,9 @@ void main() {
         vec3 direction = reflect(eyeToSurface, worldNormal);
 
         gl_FragColor = textureCube(u_textureEnvironment, direction);
-    }
+    } else if (u_textureMode == 3) {
+        gl_FragColor = texture2D(u_textureCustomImage, v_texture);
+    } 
     
     float light = dot(normal, u_reverseLightDirection);
 

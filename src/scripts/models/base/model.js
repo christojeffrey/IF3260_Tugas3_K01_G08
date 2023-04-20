@@ -26,9 +26,7 @@ export class Model {
     this.tangent = [];
     this.bitangent = [];
     this.texture = {
-      // mode: "environment",
-      // mode: "image",
-      mode: "bumpmap",
+      mode: "image",
       coordinate: [],
     };
 

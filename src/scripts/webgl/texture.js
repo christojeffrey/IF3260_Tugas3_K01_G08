@@ -1,10 +1,8 @@
 import { isPowerOf2 } from "../math/math.js";
 
-function createTexture(gl) {
+function createTexture(gl, state) {
     // Create a buffer to put textures in
-    let textures = [ImageTexture(), BumpMapTexture(), EnviromentTexture()]
-
-    console.log("textures", gl.getParameter(gl.TEXTURE0));
+    let textures = [ImageTexture(), BumpMapTexture(), CustomImageTexture(state.customImage), EnviromentTexture()]
 
     function ImageTexture() {
 
@@ -14,6 +12,13 @@ function createTexture(gl) {
     function BumpMapTexture() {
 
         return Load2DTexture("../assets/textures/bump_normal.png", 1);
+    }
+
+    function CustomImageTexture(customImage) {
+        if (customImage == null) {
+            return;
+        }
+        return Load2DTexture(customImage, 3);
     }
 
     function EnviromentTexture() {

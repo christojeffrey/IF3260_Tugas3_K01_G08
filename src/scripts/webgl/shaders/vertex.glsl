@@ -42,15 +42,12 @@ mat3 transpose(in mat3 inputMatrix) {
 
 void main() {
     // Multiply the position by the matrix.
-    mat4 viewModel = u_view * u_model;
-
     gl_Position = u_worldViewProjection * a_position;
 
     // Pass the color to the fragment shader.
     v_color = a_color;
 
     v_worldPosition = (u_world * a_position).xyz;
-    v_viewModelPosition = (viewModel * a_position).xyz;
 
     v_worldNormal = mat3(u_world) * a_normal;
 
