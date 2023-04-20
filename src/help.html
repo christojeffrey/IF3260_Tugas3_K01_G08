@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>hollow object - help</title>
+    <title>Articulated Model - Help</title>
     <link type="text/css" href="styles/help.css" rel="stylesheet" />
 
     <title>Document</title>
@@ -13,44 +13,57 @@
     <button class="back-button" id="back-button">back</button>
     <div class="main-container">
       <div class="header-container">
-        <span class="title">help!</span>
-        <div>this page is created to help you use the 'hollow object' page.</div>
+        <span class="title">Help!</span>
+        <div>This page is created to help you use the "Articulated Model" page.</div>
       </div>
       <div class="section">
-        <h2>what is 'hollow object'?</h2>
+        <h2>What is "Articulated Model"?</h2>
         <div>
-          it is a project used to explore webGL 3D. the main goal is for us to learn how to draw 3D objects in the browser. Other than that, we are (forced) to learn shadder, projections (such as orthographic, perspective). this project
-          require no third party library.
+          It is a project used to explore articulated model architecture in WebGL. The main goal is
+          for us to learn how to construct articulated models using WebGL in the browser. Other than
+          that, we are (forced) to learn shader, projections, and texture mapping. This project
+          does not require any third party library.
         </div>
       </div>
       <div class="image-container">
-        <image src="public/home.png" aria-placeholder="hollow object main page image" />
+        <img src="public/home.png"  alt="Articulated model main page" />
       </div>
       <div class="section">
-        <h2>how do I use it?</h2>
+        <h2>How do I use it?</h2>
         <div>
-          the page consist of three main part. left part, middle part, and right part
+          The page consist of three main parts: the left part, the middle part, and the right part.
 
           <ul>
-            <li>middle part: it is the 'canvas' this is where the 3D object will be drawn.</li>
-            <li>left part: focusing on major canvas changes. like clearing and reseting the canvas.</li>
-            <li>right part: this part focuses on object manipulation. such as moving the object in xyz plane.</li>
+            <li>
+              The left part: canvas controller, allowing you to pick the articulated model to render using
+              shading and texture configuration you've picked.
+            </li>
+            <li>
+              The middle part: the WebGL canvas where the 3D object will be drawn and the animation controller.
+              You can play the saved animation for each model using the play button.
+            </li>
+            <li>
+              The right part: model controller, allowing you to translate, rotate, and scale your preferred
+              model component with a configurable camera using your preferred projection mode. The left
+              controller group focuses on the whole model, while the right controller group focuses on the
+              model component you've chosen.
+            </li>
           </ul>
-          we hope the button and slider label is self explanatory. we won't bother explaining it here.
+          We hope the button and slider label are self-explanatory.
         </div>
       </div>
       <div class="section">
-        <h2>objects</h2>
+        <h2>Models</h2>
         <div>
           <div>
-            we have provided three object that you can play around with. unfortunately hollow object doesn't have the ability to create your own object. But we hope you are content with the ability to manipulate with the provided objects.
-            Those objects are: Tessaract, Rubic, and Pyramid. you can find and chose them from the top right radiobox.
+            We have provided five models that you can play around with. We hope you are content with the ability
+            to manipulate with the provided models. Those models are: minecraft character, elbow, horse, wolf,
+            and hand. You can find and chose them from the top left corner model list.
           </div>
-          <div>These objects are hollowed out, that is the reason why this project is called hollow object.</div>
         </div>
       </div>
       <div class="section">
-        <div>you can find the back button in the top left of this page. thank you for visiting!</div>
+        <div>You can find the back button in the top left of this page. Thank you for visiting!</div>
       </div>
     </div>
   </body>
