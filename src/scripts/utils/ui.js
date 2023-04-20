@@ -245,6 +245,8 @@ function setupModelListener() {
     state.modelBeingDrawn = modelListAsObject[model];
     state.modelBeingDrawn.texture = texture;
     state.modelInFocus = state.modelBeingDrawn;
+    let modelchild = state.modelInFocus.children;
+    console.log("modelchild", modelchild) 
     console.log("state.modelBeingDrawn", state.modelBeingDrawn);
     setModelsChildrenList();
     setupKeyframeListener();
@@ -266,9 +268,10 @@ function setupFileListener() {
     let reader = new FileReader();
     reader.onload = function (e) {
       let data = JSON.parse(e.target.result);
-      let modelElmt = document.querySelector(`input[value=${data.name}]`);
+      let modelElmt = document.querySelectorAll(`input[name=${data.name}]`);
       modelElmt.checked = true;
       // Pass data to defaultState
+      console.log("data", data)
       defaultState.modelInFocus.name = data.name;
       defaultState.modelInFocus.position = data.position;
       defaultState.modelInFocus.color = data.color;
@@ -310,6 +313,7 @@ function setupFileListener() {
 
   function exportData() {
     // Transform position
+    setupModelListener();
     let transformedPosition = [];
     for (let i = 0; i < state.modelInFocus.position.length; i += 3) {
       let vec = v3.create(state.modelInFocus.position[i], state.modelInFocus.position[i + 1], state.modelInFocus.position[i + 2]);
