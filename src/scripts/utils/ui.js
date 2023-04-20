@@ -265,7 +265,9 @@ function setupFileListener() {
   function importData() {
     // based on spec, seems like we should turn this off. canvas won't be reseted on import
 
-    function importChildData(model){
+    function importChildData(model, state){
+      console.log("drawn",state.modelBeingDrawn);
+      console.log(model)
       let child = {
         name: model.name,
         position: model.position,
@@ -273,6 +275,9 @@ function setupFileListener() {
         normal: [],
         anchor: [],
         children: [],
+        translation: model.translation,
+        rotation: model.rotation,
+        scale: model.scale,
       };
       for (let i = 0; i < model.position.length; i += 9) {
         let vec1 = v3.create(model.position[i + 3] - model.position[i], model.position[i + 4] - model.position[i + 1], model.position[i + 5] - model.position[i + 2]);
@@ -290,12 +295,23 @@ function setupFileListener() {
       let minZ = Math.min(...model.position.filter((_, i) => i % 3 === 2));
       child.anchor = [(maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2];
       
-      if (model.children){
-        for (let [key, child] of Object.entries(model.children)){
-          child.children.push(importChildData(child));
+      console.log("ABSHDBJJS",state)
+      if (state){
+        console.log("BAR")
+        let childcount = 0;
+        for (let [key, value] of Object.entries(state)){
+          let childData = importChildData(model.children[childcount], value.children);
+          value.name = childData.name;
+          value.position = childData.position;
+          value.color = childData.color;
+          value.normal = childData.normal;
+          value.anchor = childData.anchor;
+          value.translation = childData.translation;
+          value.rotation = childData.rotation;
+          value.scale = childData.scale;
+          childcount++;
         }
       }
-
       return child;
     }
     let file = this.files[0];
@@ -331,30 +347,37 @@ function setupFileListener() {
       defaultState.totalVertices = defaultState.modelInFocus.position.length / 3;
 
       console.log(defaultState.modelInFocus.children)
+      let childcount = 0;
+      for (let [key, value] of Object.entries(defaultState.modelInFocus.children)){
+        console.log(key,data.children)
+        let childData = importChildData(data.children[childcount], value.children);
+        value.name = childData.name;
+        value.position = childData.position;
+        value.color = childData.color;
+        value.normal = childData.normal;
+        value.anchor = childData.anchor;
+        value.translation = childData.translation;
+        value.rotation = childData.rotation;
+        value.scale = childData.scale;
+        childcount++;
+      }
 
-      // for (var [key, value] of Object.entries(defaultState.modelInFocus.children)){
-      //   console.log(value)
-      //   if (value.children){
-      //     value.children = importChildData(value);
-      //   }
-      // }
       defaultState.modelBeingDrawn = defaultState.modelInFocus;
-      // set the imported file as the default state
-      // Pass defaultState to state
       state.modelInFocus.name = defaultState.modelInFocus.name;
       state.modelInFocus.position = defaultState.modelInFocus.position;
+      console.log("modelinfocus", defaultState.modelInFocus)
       state.modelInFocus.color = defaultState.modelInFocus.color;
       state.modelInFocus.normal = defaultState.modelInFocus.normal;
       state.modelInFocus.anchor = defaultState.modelInFocus.anchor;
       state.totalVertices = defaultState.totalVertices;
-      state.modelInFocus.children = defaultState.modelInFocus.children;
-      state.modelBeingDrawn = defaultState.modelBeingDrawn;
-
+      state.modelBeingDrawn = state.modelInFocus;
+      console.log("modelbeingdrawn", state.modelBeingDrawn);
     };
     reader.readAsText(file);
 
     let customFileUploadElmt = document.querySelector(".custom-file-upload");
     customFileUploadElmt.innerHTML = file.name;
+    inFocusManipulationListener();
   }
 
   function exportData() {
@@ -372,11 +395,15 @@ function setupFileListener() {
         name: child.name,
         position: transformChildPosition,
         color: child.color,
+        translation : child.translation,
+        rotation : child.rotation,
+        scale : child.scale,
       };
   
       if (child.children) {
         let children = [];
         for (var [key, value] of Object.entries(child.children)) {
+          console.log(value)
           children.push(exportChildData(value));
         }
         childData.children = children;
@@ -397,6 +424,7 @@ function setupFileListener() {
     // Build child array of parent
     let child = [];
     for (var [key, value] of Object.entries(state.modelInFocusParent.children)) {
+      console.log(key, value)
       child.push(exportChildData(value));
     }
   
@@ -405,6 +433,9 @@ function setupFileListener() {
       name: state.modelInFocusParent.name,
       position: transformedPosition,
       color: state.modelInFocusParent.color,
+      translation : state.modelInFocusParent.translation,
+      rotation : state.modelInFocusParent.rotation,
+      scale : state.modelInFocusParent.scale,
       children: child,
     };
   
@@ -801,6 +832,7 @@ function setupScaleListener() {
 function inFocusManipulationListener() {
   // translate
 
+  console.log(state.modelBeingDrawn)
   let idNameInput = ["translateXInFocusInput", "translateYInFocusInput", "translateZInFocusInput", "rotateXInFocusInput", "rotateYInFocusInput", "rotateZInFocusInput", "scaleXInFocusInput", "scaleYInFocusInput", "scaleZInFocusInput"];
   let idNameLabel = ["translateXInFocusValue", "translateYInFocusValue", "translateZInFocusValue", "rotateXInFocusValue", "rotateYInFocusValue", "rotateZInFocusValue", "scaleXInFocusValue", "scaleYInFocusValue", "scaleZInFocusValue"];
   for (let i = 0; i < 3; i++) {
@@ -819,8 +851,8 @@ function inFocusManipulationListener() {
       state.modelInFocus.translation[i] = parseFloat(e.target.value);
       elmtValue.textContent = e.target.value;
       elmtInput.value = e.target.value;
+      console.log("update model in focus")
       state.modelBeingDrawn.updateModelBeingDrawnFully();
-      console.log(state.modelInFocus);
     });
   }
 
