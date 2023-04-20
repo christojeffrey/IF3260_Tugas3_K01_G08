@@ -3,7 +3,7 @@ import { cs } from "../constant/cs.js";
 import { v3 } from "../math/v3.js";
 import { m4 } from "../math/m4.js";
 
-import { minecraft, elbow, pig, horse, hand } from "../models/index.js";
+import { minecraft, elbow, wolf, horse, hand } from "../models/index.js";
 import { KEYFRAME_DURATION } from "../constant/keyframeduration.js";
 import { createTexture } from "../webgl/texture.js";
 
@@ -12,7 +12,7 @@ let modelListAsObject = {
   minecraft,
   elbow,
   horse,
-  pig,
+  wolf,
   hand,
 };
 let state;
@@ -24,12 +24,6 @@ function setupUI(gl) {
   let modelBeingDrawn = modelListAsObject[firstObjectKey];
   let modelInFocus = modelBeingDrawn;
 
-  //modelInFocus.anchor = modelInFocus.anchor || [0, 0, 0];
-
-  // console.log("modelInFocus", modelInFocus);
-
-  // let projection = "orthographic";
-  // let projection = "oblique";
   let projection = "perspective";
   let obliqueAngle = 45;
   let perspectiveFoV = 90;
@@ -68,13 +62,12 @@ function setupUI(gl) {
   // setup ui
   setupModelList();
   // Left bar listeners
-  setupModelListener();
+  setupModelListener(gl);
   setupAnimationListener();
   setupFileListener();
   setupCanvasListener();
   setupShadingListener();
   setupHelpListener();
-  setupTextureListener(gl);
 
   // Right bar listeners
   setupProjectionListener();
@@ -84,6 +77,7 @@ function setupUI(gl) {
   setupScaleListener();
   setupCameraListener();
 
+  setupTextureListener(gl);
   setModelsChildrenList();
   inFocusManipulationListener();
 
@@ -120,6 +114,7 @@ function setupKeyframeListener() {
   // #play-animation button
   let playAnimationButton = document.querySelector("#play-animation");
   playAnimationButton.addEventListener("click", () => {
+    console.log("play animation");
     // change text
     if (state.isKeyframePlaying) {
       playAnimationButton.textContent = "Play";
@@ -131,6 +126,7 @@ function setupKeyframeListener() {
       let currentFrameCountElmt = document.querySelector("#current-frame-count");
 
       let interval = setInterval(() => {
+        console.log("interval");
         if (state.isKeyframePlaying) {
           if (parseInt(currentFrameCountElmt.value) < maxModelFrame) {
             currentFrameCountElmt.value = parseInt(currentFrameCountElmt.value) + 1;
@@ -234,7 +230,7 @@ function addChildrenButtonRecursively(leftMargin, child, modelsChildrenElmt) {
   });
 }
 
-function setupModelListener() {
+function setupModelListener(gl) {
   let modelElmt = document.querySelectorAll("input[name=model]");
   modelElmt.forEach((elmt) => {
     elmt.addEventListener("change", (e) => {
@@ -244,15 +240,13 @@ function setupModelListener() {
 
   function updateModel(e) {
     let model = e.target.value;
-    let texture = state.modelBeingDrawn.texture;
     state.modelBeingDrawn = modelListAsObject[model];
-    state.modelBeingDrawn.texture = texture;
+
     state.modelInFocus = state.modelBeingDrawn;
-    let modelchild = state.modelInFocus.children;
-    console.log("modelchild", modelchild) 
-    console.log("state.modelBeingDrawn", state.modelBeingDrawn);
     setModelsChildrenList();
     setupKeyframeListener();
+    inFocusManipulationListener();
+    setupTextureListener(gl);
   }
 }
 
@@ -326,36 +320,6 @@ function setupFileListener() {
       transformedPosition = [...transformedPosition, Math.round(transformedVec[0]), Math.round(transformedVec[1]), Math.round(transformedVec[2])];
     }
 
-    // for make default model with transformation
-    // let rectangle_point = [];
-
-    // for (let i = 0; i < state.modelInFocus.cubes.length; i++) {
-    //   rectangle_point.push(transformedPosition[108 * i + 0]);
-    //   rectangle_point.push(transformedPosition[108 * i + 1]);
-    //   rectangle_point.push(transformedPosition[108 * i + 2]);
-    //   rectangle_point.push(transformedPosition[108 * i + 3]);
-    //   rectangle_point.push(transformedPosition[108 * i + 4]);
-    //   rectangle_point.push(transformedPosition[108 * i + 5]);
-    //   rectangle_point.push(transformedPosition[108 * i + 12]);
-    //   rectangle_point.push(transformedPosition[108 * i + 13]);
-    //   rectangle_point.push(transformedPosition[108 * i + 14]);
-    //   rectangle_point.push(transformedPosition[108 * i + 6]);
-    //   rectangle_point.push(transformedPosition[108 * i + 7]);
-    //   rectangle_point.push(transformedPosition[108 * i + 8]);
-
-    //   rectangle_point.push(transformedPosition[108 * i + 24]);
-    //   rectangle_point.push(transformedPosition[108 * i + 25]);
-    //   rectangle_point.push(transformedPosition[108 * i + 26]);
-    //   rectangle_point.push(transformedPosition[108 * i + 30]);
-    //   rectangle_point.push(transformedPosition[108 * i + 31]);
-    //   rectangle_point.push(transformedPosition[108 * i + 32]);
-    //   rectangle_point.push(transformedPosition[108 * i + 21]);
-    //   rectangle_point.push(transformedPosition[108 * i + 22]);
-    //   rectangle_point.push(transformedPosition[108 * i + 23]);
-    //   rectangle_point.push(transformedPosition[108 * i + 18]);
-    //   rectangle_point.push(transformedPosition[108 * i + 19]);
-    //   rectangle_point.push(transformedPosition[108 * i + 20]);
-    // }
     let data = {
       name: state.modelInFocus.name,
       position: transformedPosition,
@@ -503,6 +467,7 @@ function setupTextureListener(gl) {
     elmt.addEventListener("change", (e) => {
       updateTexture(e);
     });
+    elmt.checked = elmt.value === state.modelBeingDrawn.texture.mode;
   });
 
   function updateTexture(e) {
@@ -785,6 +750,7 @@ function inFocusManipulationListener() {
     // set current value and text
     elmtInput.value = radToDeg(state.modelInFocus.rotation[i]);
     elmtValue.textContent = radToDeg(state.modelInFocus.rotation[i]);
+
     elmtInput.addEventListener("input", (e) => {
       // parse the value to float
       state.modelInFocus.rotation[i] = degToRad(parseFloat(e.target.value));
