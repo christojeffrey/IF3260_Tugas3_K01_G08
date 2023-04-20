@@ -122,19 +122,16 @@ head.setCubes([new Cube(125, 100, 100, new Point(0, -12.5, 175))]);
 head.completeModelUsingCubes();
 head.setAnchor(new Point(100, 0, 0));
 head.setAnchor([100, 0, 0]);
+head.addChildren("firstEar", firstEar);
+head.addChildren("secondEar", secondEar);
+head.addChildren("nose", nose);
+head.updateModelBeingDrawnFully();
 
 let mane = new Model("mane");
 mane.setCubes([new Cube(175, 125, 100, new Point(0, -12.5, 125))]);
 mane.completeModelUsingCubes();
 mane.setAnchor(new Point(100, 0, 0));
 mane.setAnchor([100, 0, 0]);
-mane.addChildren("firstEar", firstEar);
-mane.updateModelBeingDrawnFully();
-mane.addChildren("secondEar", secondEar);
-mane.updateModelBeingDrawnFully();
-mane.addChildren("nose", nose);
-mane.updateModelBeingDrawnFully();
-mane.addChildren("head", head);
 mane.updateModelBeingDrawnFully();
 
 let tail = new Model("tail");
@@ -205,6 +202,9 @@ wolf.addChildren("forthArm", forthArm);
 wolf.updateModelBeingDrawnFully();
 
 wolf.addChildren("tail", tail);
+wolf.updateModelBeingDrawnFully();
+
+wolf.addChildren("head", head);
 wolf.updateModelBeingDrawnFully();
 
 let WolfKeyframe1 = new Keyframe(3);
