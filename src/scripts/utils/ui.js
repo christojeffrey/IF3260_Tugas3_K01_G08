@@ -275,6 +275,9 @@ function setupFileListener() {
         normal: [],
         anchor: [],
         children: [],
+        translation: model.translation,
+        rotation: model.rotation,
+        scale: model.scale,
       };
       for (let i = 0; i < model.position.length; i += 9) {
         let vec1 = v3.create(model.position[i + 3] - model.position[i], model.position[i + 4] - model.position[i + 1], model.position[i + 5] - model.position[i + 2]);
@@ -334,14 +337,17 @@ function setupFileListener() {
 
       console.log(defaultState.modelInFocus.children)
       let childcount = 0;
-      for (var [key, value] of Object.entries(defaultState.modelInFocus.children)){
+      for (let [key, value] of Object.entries(defaultState.modelInFocus.children)){
         console.log(key,data.children)
-        var childData = importChildData(data.children[childcount]);
+        let childData = importChildData(data.children[childcount], value.children);
         value.name = childData.name;
         value.position = childData.position;
         value.color = childData.color;
         value.normal = childData.normal;
         value.anchor = childData.anchor;
+        value.translation = childData.translation;
+        value.rotation = childData.rotation;
+        value.scale = childData.scale;
         childcount++;
       }
 
@@ -360,6 +366,7 @@ function setupFileListener() {
 
     let customFileUploadElmt = document.querySelector(".custom-file-upload");
     customFileUploadElmt.innerHTML = file.name;
+    inFocusManipulationListener();
   }
 
   function exportData() {
@@ -377,6 +384,9 @@ function setupFileListener() {
         name: child.name,
         position: transformChildPosition,
         color: child.color,
+        translation : child.translation,
+        rotation : child.rotation,
+        scale : child.scale,
       };
   
       if (child.children) {
@@ -412,6 +422,9 @@ function setupFileListener() {
       name: state.modelInFocusParent.name,
       position: transformedPosition,
       color: state.modelInFocusParent.color,
+      translation : state.modelInFocusParent.translation,
+      rotation : state.modelInFocusParent.rotation,
+      scale : state.modelInFocusParent.scale,
       children: child,
     };
   
